@@ -32,11 +32,9 @@ Options to select when prompted:
       Would you like the HDMI display to mirror to the PiTFT display? [y/n] y
 
 
-
-    don't worry about the SLD2.0 issue.  You won't use pygame for your GUI.
-    You shouldn't need to calibrate, but can if you find it off.
+After the reboot, you should be done with the setup.  Don't worry about the SLD2.0 issue it talks about in PyGame tips.  You won't use PyGame for your GUI.  Also, You shouldn't need to calibrate, but can follow there instructions if you find it off.
   
-### 3.  Hide the ouse Pointer:
+### 3.  Hide the Mouse Pointer:
 
 For a touch screen GUI, a mouse pointer popping up looks goofy.  So, to get rid of it use the text editor nano to open the following file and then put the second line under the commented #xserver-command=X line in the [Seat:*] section.
 
@@ -67,10 +65,12 @@ Install the package that allows you to move the mouse cursor.  This is needed to
            
 ### 5.  Clone this Repository:
 a.  From the terminal, paste the following:
+
       cd ~
       git clone https://github.com/RaisingAwesome/Ghost-Catcher-Cam
 
 b.  Copy a new splash screen, make a .png image with dimensions 420x380 and type the following:
+
       cd Ghost-Catcher-Cam
       sudo cp splash.png /usr/share/plymouth/themes/pix/
 
