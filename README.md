@@ -38,7 +38,7 @@ Options to select when prompted:
   
 ### Hide Mouse Pointer:
 
-Use the text editor nano to open the following file and then put the second line under the commented #xserver-command=X line in the [Seat:*] section.
+For a touch screen GUI, a mouse pointer popping up looks goofy.  So, to get rid of it use the text editor nano to open the following file and then put the second line under the commented #xserver-command=X line in the [Seat:*] section.
 
       sudo nano /etc/lightdm/lightdm.conf
       xserver-command=X -nocursor      
