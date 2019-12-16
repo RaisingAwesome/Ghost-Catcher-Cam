@@ -1,5 +1,6 @@
 import cv2
 import os
+from pymouse import PyMouse
 
 # import the necessary packages
 from picamera.array import PiRGBArray
@@ -18,9 +19,21 @@ def StreamIt():
      
     # allow the camera to warmup
     time.sleep(0.1)
+    os.system("sudo chmod +777 /home/tp/RaspberryPiRepositories/Ghost-Catcher-Cam/stop")
     os.system("sudo rm /home/tp/RaspberryPiRepositories/Ghost-Catcher-Cam/stop") #this will let us stop the stream
+    
     os.system("sudo touch /home/tp/RaspberryPiRepositories/Ghost-Catcher-Cam/stop") #by creating an empty file named stop.  Once it has a q in it, ffmpeg will get the q and then stop
+    os.system("sudo chmod +777 /home/tp/RaspberryPiRepositories/Ghost-Catcher-Cam/stop")
     os.system("sudo </home/tp/RaspberryPiRepositories/Ghost-Catcher-Cam/stop /usr/bin/ffmpeg -f lavfi -i anullsrc -f x11grab -framerate 30 -video_size 480x320 -i :0.0 -f flv -s 480x320 rtmp://a.rtmp.youtube.com/live2/628y-jagt-7b5c-4c9b >/dev/null 2>>Capture.log &")
+    
+    screen=6 #don't want to register a real click that the logic will catch
+    #click the mouse out of the view.  for some reason, even though I hide it in the operating system, it shows when streaming.
+
+    m = PyMouse()
+    m.click(479, 319, 1)
+
+    key=cv2.waitKey(100)
+    screen=5
     # capture frames from the camera
     for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
     	# grab the raw NumPy array representing the image, then initialize the timestamp
@@ -28,7 +41,7 @@ def StreamIt():
     	img = frame.array
     	img=cv2.resize(img, (480,320),interpolation = cv2.INTER_AREA)
     	
-    	img = cv2.putText(img, 'Raising Awesome!', (45, 130), cv2.FONT_HERSHEY_SIMPLEX,  
+    	img = cv2.putText(img, 'Raising Awesome!', (45, 130), cv2.FONT_HERSHEY_SIMPLEX,
                1.5, (0, 0, 0), 7, cv2.LINE_AA)
         # show the frame
     	cv2.imshow(tag, img)
@@ -46,7 +59,7 @@ def StreamIt():
 def MouseHandler(event, x, y, flags, param):
     global done, screen, img,tag
     
-    if event==cv2.EVENT_LBUTTONUP:
+    if event==cv2.EVENT_LBUTTONUP and screen<6:
         if screen==5:
             screen=0
             img = cv2.imread('gui.png',1)
