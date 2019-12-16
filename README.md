@@ -62,7 +62,7 @@ a.  From the terminal, paste the following:
       git clone https://github.com/RaisingAwesome/Ghost-Catcher-Cam
       DISPLAY=:0.0 python3 ghostcv2.py #to run it
 
-b.  Copy a new splash screen, make a .png image with dimensions 420x380 and type the following:
+b.  Copy the bootup splash screen.  You can change it by making a .png image with dimensions 480x320.
 
       cd Ghost-Catcher-Cam
       sudo cp splash.png /usr/share/plymouth/themes/pix/
