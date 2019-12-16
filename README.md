@@ -40,8 +40,6 @@ For a touch screen GUI, a mouse pointer popping up looks goofy.  So, to get rid 
 
       sudo nano /etc/lightdm/lightdm.conf
       xserver-command=X -nocursor      
-      
-      
 
 ### 4.  Install the Required Software:
 
@@ -56,23 +54,18 @@ Install the package that allows you to move the mouse cursor.  This is needed to
 #### c.  OpenCV for Python3:
 
       sudo apt-get install python3-opencv #takes a while, its bigger than 250M
-      sudo apt-get install libhdf5-dev
-      sudo apt-get install libhdf5-serial-dev
-      sudo apt-get install libatlas-base-dev
-      sudo apt-get install libjasper-dev 
-      sudo apt-get install libqtgui4 
-      sudo apt-get install libqt4-test
            
 ### 5.  Clone this Repository:
 a.  From the terminal, paste the following:
-
       cd ~
       git clone https://github.com/RaisingAwesome/Ghost-Catcher-Cam
+      DISPLAY=:0.0 python3 ghostcv2.py #to run it
 
 b.  Copy a new splash screen, make a .png image with dimensions 420x380 and type the following:
 
       cd Ghost-Catcher-Cam
       sudo cp splash.png /usr/share/plymouth/themes/pix/
+      sudo reboot
 
 ### Extra Info:
 For info, to stream the entire Raspberry Pi display, this work:
