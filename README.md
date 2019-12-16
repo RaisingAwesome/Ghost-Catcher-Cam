@@ -17,6 +17,8 @@ a.  Install the desktop version of Raspian:  https://www.raspberrypi.org/downloa
 b.  Open a terminal and type the following to enable the camera and SSH interface
       
       sudo raspi-config #enable the camera, SSH
+      
+c.  Get rid of the Trash can.  Click the "Start" button, then Preferences-->Appearance Settings-->Wastebasket
 
 ### 2.  Install PiTFT Display Kernal per Adafuit:
 
@@ -62,11 +64,17 @@ a.  From the terminal, paste the following:
       git clone https://github.com/RaisingAwesome/Ghost-Catcher-Cam
       DISPLAY=:0.0 python3 ghostcv2.py #to run it
 
-b.  Copy the bootup splash screen.  You can change it by making a .png image with dimensions 480x320.  This post tells you how to get rid of the stuff at the bottom of the screen:  https://www.thedigitalpictureframe.com/customize-your-raspberry-pi-splash-screen-raspbian-stretch-april-2019-version/.  It is possible that it boots so fast that you don't get to see it.  In turn, you may want to set this as the Raspberry Pi Desktop background instead.
+b.  Copy the bootup splash screen.  You can change it by making a .png image with dimensions 480x320.  This post tells you how to get rid of the stuff at the bottom of the screen:  https://www.thedigitalpictureframe.com/customize-your-raspberry-pi-splash-screen-raspbian-stretch-april-2019-version/.  It is possible that it boots so fast that you don't get to see it.  In turn, you may want to set this as the Raspberry Pi Desktop background instead.   
 
       cd Ghost-Catcher-Cam
       sudo cp splash.png /usr/share/plymouth/themes/pix/
       sudo reboot
+
+c.  Hide your Taskbar.  To do this, open a terminal and edit the LXDE-pi/autostart file as shown here:
+
+      sudo nano /etc/xdg/lxsession/LXDE-pi/autostart
+      
+      #comment out the line with @lxpanel --profile LXDE
 
 ### 6.  Make it Autoboot
 You first have to set permissions on the runner file:
