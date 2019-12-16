@@ -1,21 +1,56 @@
 import cv2
 import os
 
+# import the necessary packages
+from picamera.array import PiRGBArray
+from picamera import PiCamera
+import time
+
 os.putenv('SDL_VIDEODRIVER','fbcon')
 os.putenv('SDL_FBDEV', '/dev/fb1')
 os.putenv('SDL_MOUSEDRV', 'TSLIB')
 os.putenv('SDL_MOUSEDEV', '/dev/input/touchscreen')
 
-done=False
-screen=0
-img = cv2.imread('gui.png',1)
-tag="mywindow"
+def StreamIt():
+    #from http://www.pyimagesearch.com/2015/03/30/accessing-the-raspberry-pi-camera-with-opencv-and-python/
+    # initialize the camera and grab a reference to the raw camera capture
+    global screen, tag, img, camera, rawCapture
+     
+    # allow the camera to warmup
+    time.sleep(0.1)
+    os.system("sudo rm /home/tp/RaspberryPiRepositories/Ghost-Catcher-Cam/stop") #this will let us stop the stream
+    os.system("sudo touch /home/tp/RaspberryPiRepositories/Ghost-Catcher-Cam/stop") #by creating an empty file named stop.  Once it has a q in it, ffmpeg will get the q and then stop
+    os.system("sudo </home/tp/RaspberryPiRepositories/Ghost-Catcher-Cam/stop /usr/bin/ffmpeg -f lavfi -i anullsrc -f x11grab -framerate 30 -video_size 480x320 -i :0.0 -f flv -s 480x320 rtmp://a.rtmp.youtube.com/live2/628y-jagt-7b5c-4c9b >/dev/null 2>>Capture.log &")
+    # capture frames from the camera
+    for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
+    	# grab the raw NumPy array representing the image, then initialize the timestamp
+    	# and occupied/unoccupied text
+    	img = frame.array
+    	img=cv2.resize(img, (480,320),interpolation = cv2.INTER_AREA)
+    	
+    	img = cv2.putText(img, 'Raising Awesome!', (45, 130), cv2.FONT_HERSHEY_SIMPLEX,  
+               1.5, (0, 0, 0), 7, cv2.LINE_AA)
+        # show the frame
+    	cv2.imshow(tag, img)
+    	key = cv2.waitKey(1)
+     
+    	# clear the stream in preparation for the next frame
+    	rawCapture.truncate(0)
+     
+    	# if the `q` key was pressed, break from the loop
+    	if screen==0:
+    	    os.system("echo 'q' >stop") #this simulates a keypress of the letter q which stops ffmpeg.  genius
+    	    #https://stackoverflow.com/questions/9722624/how-to-stop-ffmpeg-remotely
+    	    break
 
 def MouseHandler(event, x, y, flags, param):
     global done, screen, img,tag
     
     if event==cv2.EVENT_LBUTTONUP:
-        if (x>55 and x<168 and y>60 and y<145): #handle go live tap
+        if screen==5:
+            screen=0
+            img = cv2.imread('gui.png',1)
+        elif (x>55 and x<168 and y>60 and y<145): #handle go live tap
             screen=4
             img = cv2.imread('confirm.png',1)
             img = cv2.putText(img, 'Start Streaming!?', (45, 130), cv2.FONT_HERSHEY_SIMPLEX,  
@@ -53,12 +88,11 @@ def MouseHandler(event, x, y, flags, param):
                 screen=0
             elif screen==4: #handle start streaming confirmed
                 img = cv2.imread('gui.png',1)
-                cv2.destroyAllWindows()
-                os.system("sudo raspivid -o - -t 0 -vf -hf -w 1280 -h 720 -fps 25 -b 4000000 -g 50 | ffmpeg -re -ar 44100 -ac 2 -acodec pcm_s16le -f s16le -ac 2 -i /dev/zero -f h264 -i - -vcodec copy -acodec aac -ab 128k -g 50 -strict experimental -f flv rtmp://a.rtmp.youtube.com/live2/628y-jagt-7b5c-4c9b &")
-                while True:
-                    k = cv2.waitKey(1)
-                
+                screen=5
+                #os.system("ffmpeg -re -ar 44100 -ac 2 -acodec pcm_s16le -f s16le -ac 2 -i /dev/fb0 -f h264 -i - -vcodec copy -acodec aac -ab 128k -g 50 -strict experimental -f flv rtmp://a.rtmp.youtube.com/live2/628y-jagt-7b5c-4c9b &")
+                StreamIt()
                 screen=0
+                img = cv2.imread('gui.png',1)
         elif (x>310 and x<418 and y>196 and y<280):
             if screen==0: #handle config wifi 
                 img = cv2.imread('confirm.png',1)
@@ -71,18 +105,24 @@ def MouseHandler(event, x, y, flags, param):
                 img = cv2.imread('gui.png',1)
                 screen=0
         cv2.imshow(tag,img)
+
+done=False
+screen=0
+img = cv2.imread('gui.png',1)
+tag="mywindow"
+
 cv2.namedWindow(tag,0)
 cv2.setWindowProperty(tag, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN);
 cv2.imshow(tag,img)
 cv2.setMouseCallback(tag, MouseHandler)
+camera = PiCamera()
+camera.resolution = (480, 320)
+camera.framerate = 30
+camera.rotation = 180
+rawCapture = PiRGBArray(camera, size=(480, 320) )
 
 while not done:
-    
     k = cv2.waitKey(1)
-
-if k == 27:         # wait for ESC key to exit
-    cv2.destroyAllWindows()
     
-elif k == ord('s'): # wait for 's' key to save and exit
-    cv2.imwrite('messigray.png',img)
-    cv2.destroyAllWindows()
+cv2.destroyAllWindows()
+exit()
