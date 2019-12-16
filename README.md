@@ -68,6 +68,19 @@ b.  Copy the bootup splash screen.  You can change it by making a .png image wit
       sudo cp splash.png /usr/share/plymouth/themes/pix/
       sudo reboot
 
+### 6.  Make it Autoboot
+You first have to set permissions on the runner file:
+
+      cd ~/Ghost-Catcher-Cam
+      chmod +777 runner.sh
+      
++Then, set a Crontab entry so it runs at startup:
+
+      crontab -e
+
++Type the following at the bottom of the page:
+      @reboot sleep 0 && /home/pi/Ghost-Catcher-Cam/runner.sh &  #increase the sleep zero if it doesn't run to give it time to boot up more dependancies.  The sleep parameter is in seconds.
+      
 ### Extra Info:
 For info, to stream the entire Raspberry Pi display, this work:
 
