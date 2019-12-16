@@ -57,6 +57,7 @@ Install the package that allows you to move the mouse cursor.  This is needed to
            
 ### 5.  Clone this Repository:
 a.  From the terminal, paste the following:
+
       cd ~
       git clone https://github.com/RaisingAwesome/Ghost-Catcher-Cam
       DISPLAY=:0.0 python3 ghostcv2.py #to run it
