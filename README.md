@@ -34,26 +34,30 @@ Options to select when prompted:
 
 
     don't worry about the SLD2.0 issue.  You won't use pygame for your GUI.
-    Do both calibrations
+    You shouldn't need to calibrate, but can if you find it off.
   
 ### Hide Mouse Pointer:
 
-Use nano to open the following file and then put the second line at the bottom of the file.
+Use the text editor nano to open the following file and then put the second line under the commented #xserver-command=X line in the [Seat:*] section.
 
       sudo nano /etc/lightdm/lightdm.conf
-      xserver-command = X -nocursor      
+      xserver-command=X -nocursor      
       
       
 
-### Required Software:
+### Install the Required Software:
 
-#### python3
+#### 1.  python3
+Ensure you have python3 installed by typing python3.  You should have it already installed.  Type exit() to exit out of it.  If you don't have it, Google how to install python on Raspberry pi X, where X is your version.
+
+#### 2.  PyUserInput  
+Install the package that allows you to move the mouse cursor.  This is needed to hide the mouse when streaming.  Even though the above section hides the mouse pointer on the screen, its magically still there when streaming.  So, we move it with code to the lower right out of view.
       
       sudo pip3 install PyUserInput #hide the mouse while streaming
 
 #### OpenCV for python3:
 
-      sudo apt-get install python3-opencv
+      sudo apt-get install python3-opencv #takes a while, its bigger than 250M
       sudo apt-get install libhdf5-dev
       sudo apt-get install libhdf5-serial-dev
       sudo apt-get install libatlas-base-dev
@@ -62,11 +66,13 @@ Use nano to open the following file and then put the second line at the bottom o
       sudo apt-get install libqt4-test
            
 ## Clone this repository
-From the terminal, paste the following:
-
+1.  From the terminal, paste the following:
       cd ~
       git clone https://github.com/RaisingAwesome/Ghost-Catcher-Cam
 
+2.  Copy a new splash screen, make a .png image with dimensions 420x380 and type the following:
+      cd Ghost-Catcher-Cam
+      sudo cp splash.png /usr/share/plymouth/themes/pix/
 
 ## Streaming Tip
 For info, to stream the entire Raspberry Pi display, this work:
@@ -74,10 +80,5 @@ For info, to stream the entire Raspberry Pi display, this work:
       ffmpeg -f lavfi -i anullsrc -f x11grab -framerate 30 -video_size 480x320 -i :0.0 -f flv -s 480x320 rtmp://a.rtmp.youtube.com/live2/streamkey
 
 This approach is used by the ghostcv2.py program.
-
-## Hacks
-To copy a new splash screen, make a .png image with dimensions 420x380 and type the following:
-
-      sudo cp splash.png /usr/share/plymouth/themes/pix/
       
       
