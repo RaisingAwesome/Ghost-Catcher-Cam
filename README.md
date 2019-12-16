@@ -10,9 +10,9 @@ An up-and-coming project to build a camera that can seek and capture the presens
 
 a.  Install the desktop version of Raspian:  https://www.raspberrypi.org/downloads/raspbian/
 
-      You'll need to hook your Raspberry pi to a mouse, keyboard, and monitor with an HDMI chord.
-      
-      With the desktop wizard, follow the prompts to config the desktop and run updates.  Choose not to reboot.  Click on the terminal icon.
++ You'll need to hook your Raspberry pi to a mouse, keyboard, and monitor with an HDMI cord.
+
++ With the desktop wizard, follow the prompts to config the desktop and run updates.  Choose not to reboot.  Click on the terminal icon.
 
 b.  Open a terminal and type the following to enable the camera and SSH interface
       
