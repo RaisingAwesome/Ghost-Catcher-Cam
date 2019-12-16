@@ -4,7 +4,7 @@ A Camera for Ghost Hunting
 
 An up-and-coming project to build a camera that can seek and capture the presense of ghosts and upload it to the cloud.
 
-## Raspberry Pi Setup
+## Raspberry Pi Setup for the Ghost-Catcher-Cam
 
 ### 1.  Create the Raspian Image
 
@@ -21,7 +21,7 @@ b.  Open a terminal and type the following to enable the camera and SSH interfac
 ### 2.  Install PiTFT Display Kernal per Adafuit:
 
     https://learn.adafruit.com/adafruit-pitft-3-dot-5-touch-screen-for-raspberry-pi/easy-install-2
-Options to select when prompted:
++ Options to select when prompted:
 
       4. PiTFT 3.5" resistive touch (320x480)
 
@@ -32,7 +32,7 @@ Options to select when prompted:
       Would you like the HDMI display to mirror to the PiTFT display? [y/n] y
 
 
-After the reboot, you should be done with the setup.  Don't worry about the SLD2.0 issue it talks about in PyGame tips.  You won't use PyGame for your GUI.  Also, You shouldn't need to calibrate, but can follow there instructions if you find it off.
++ After the reboot, you should be done with the setup.  Don't worry about the SLD2.0 issue it talks about in PyGame tips.  You won't use PyGame for your GUI.  Also, You shouldn't need to calibrate, but can follow there instructions if you find it off.
   
 ### 3.  Hide the Mouse Pointer:
 
