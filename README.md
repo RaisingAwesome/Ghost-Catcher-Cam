@@ -62,7 +62,7 @@ a.  From the terminal, paste the following:
       git clone https://github.com/RaisingAwesome/Ghost-Catcher-Cam
       DISPLAY=:0.0 python3 ghostcv2.py #to run it
 
-b.  Copy the bootup splash screen.  You can change it by making a .png image with dimensions 480x320.  This post tells you how to get rid of the stuff at the bottom of the screen.  It is possible that it boots so fast that you don't get to see it.  In turn, you may want to set this as the Raspberry Pi Desktop background instead.
+b.  Copy the bootup splash screen.  You can change it by making a .png image with dimensions 480x320.  This post tells you how to get rid of the stuff at the bottom of the screen:  https://www.thedigitalpictureframe.com/customize-your-raspberry-pi-splash-screen-raspbian-stretch-april-2019-version/.  It is possible that it boots so fast that you don't get to see it.  In turn, you may want to set this as the Raspberry Pi Desktop background instead.
 
       cd Ghost-Catcher-Cam
       sudo cp splash.png /usr/share/plymouth/themes/pix/
