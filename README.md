@@ -87,6 +87,7 @@ You first have to set permissions on the runner file:
       crontab -e
 
 +Type the following at the bottom of the page:
+
       @reboot sleep 0 && /home/pi/Ghost-Catcher-Cam/runner.sh &  #increase the sleep zero if it doesn't run to give it time to boot up more dependancies.  The sleep parameter is in seconds.
       
 ### Extra Info:
