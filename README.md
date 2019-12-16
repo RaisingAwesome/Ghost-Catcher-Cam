@@ -36,3 +36,8 @@ An up-and-coming project to build a camera that can seek and capture the presens
       sudo apt-get install libjasper-dev 
       sudo apt-get install libqtgui4 
       sudo apt-get install libqt4-test
+
+## Streaming
+To screen the entire Raspberry Pi display, this works:
+
+      ffmpeg -f lavfi -i anullsrc -f x11grab -framerate 30 -video_size 480x320 -i :0.0 -f flv -s 480x320 rtmp://a.rtmp.youtube.com/live2/streamkey
