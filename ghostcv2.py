@@ -16,16 +16,15 @@ def StreamIt():
     #from http://www.pyimagesearch.com/2015/03/30/accessing-the-raspberry-pi-camera-with-opencv-and-python/
     # initialize the camera and grab a reference to the raw camera capture
     global screen, tag, img, camera, rawCapture
-     
+
     # allow the camera to warmup
     time.sleep(0.1)
     os.system("sudo chmod +777 /home/pi/Ghost-Catcher-Cam/stop")
     os.system("sudo rm /home/pi/Ghost-Catcher-Cam/stop") #this will let us stop the stream
-    
+
     os.system("sudo touch /home/pi/Ghost-Catcher-Cam/stop") #by creating an empty file named stop.  Once it has a q in it, ffmpeg will get the q and then stop
     os.system("sudo chmod +777 /home/pi/Ghost-Catcher-Cam/stop")
-    os.system("sudo </home/pi/Ghost-Catcher-Cam/stop /usr/bin/ffmpeg -f lavfi -i anullsrc -f x11grab -framerate 30 -video_size 720x480 -i :0.0 -f flv -s 720x480 rtmp://a.rtmp.youtube.com/live2/628y-jagt-7b5c-4c9b >/dev/null 2>>Capture.log &")
-    
+    os.system("</home/pi/Ghost-Catcher-Cam/stop /usr/bin/ffmpeg -f lavfi -i anullsrc -f x11grab -framerate 30 -video_size 720x480 -i :0.0 -f flv -s 720x480 rtmp://a.rtmp.youtube.com/live2/628y-jagt-7b5c-4c9b >/dev/null 2>>Capture.log &")
     screen=6 #don't want to register a real click that the logic will catch
     #click the mouse out of the view.  for some reason, even though I hide it in the operating system, it shows when streaming.
 
@@ -40,16 +39,16 @@ def StreamIt():
     	# and occupied/unoccupied text
     	img = frame.array
     	img=cv2.resize(img, (720,480),interpolation = cv2.INTER_AREA)
-    	
+
     	img = cv2.putText(img, 'Raising Awesome!', (45, 130), cv2.FONT_HERSHEY_SIMPLEX,
                1.5, (0, 0, 0), 7, cv2.LINE_AA)
         # show the frame
     	cv2.imshow(tag, img)
     	key = cv2.waitKey(1)
-     
+
     	# clear the stream in preparation for the next frame
     	rawCapture.truncate(0)
-     
+
     	# if the `q` key was pressed, break from the loop
     	if screen==0:
     	    os.system("echo 'q' >stop") #this simulates a keypress of the letter q which stops ffmpeg.  genius
@@ -58,7 +57,7 @@ def StreamIt():
 
 def MouseHandler(event, x, y, flags, param):
     global done, screen, img,tag
-    
+
     if event==cv2.EVENT_LBUTTONUP and screen<6:
         if screen==5:
             screen=0
