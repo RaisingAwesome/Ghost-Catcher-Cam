@@ -38,7 +38,7 @@ c.  Get rid of the Trash can.  Click the "Start" button, then Preferences-->Appe
   
 ### 3.  Hide the Mouse Pointer:
 
-For a touch screen GUI, a mouse pointer popping up looks goofy.  So, to get rid of it use the text editor nano to open the following file and then put the second line under the commented #xserver-command=X line in the [Seat:*] section.  The third line will prevent the screen from going blank if not touched for a while.
+For a touch screen GUI, a mouse pointer popping up looks goofy.  So, to get rid of it use the text editor nano to open the following file and then put the second line under the commented #xserver-command=X line in the [Seat:*] section.  The -s 0 dpms will prevent the screen from going blank if not touched for a while.
 
       sudo nano /etc/lightdm/lightdm.conf
       xserver-command=X -nocursor -s 0 dpms
