@@ -143,7 +143,7 @@ def MouseHandler(event, x, y, flags, param):
         if current_screen==5:
             current_screen=SCREEN_MENU
             img = cv2.imread('/home/pi/Ghost-Catcher-Cam/gui.png',1)
-        elif (x>82 and x<252 and y>90 and y<217): #handle go live tap
+        elif (x>82 and x<252 and y>90 and y<217 and current_screen==SCREEN_MENU): #handle go live tap
             current_screen=4
             img = cv2.imread('/home/pi/Ghost-Catcher-Cam/confirm.png',1)
             img = cv2.putText(img, 'Start Streaming!?', (67, 195), cv2.FONT_HERSHEY_SIMPLEX, 2.25, (0, 0, 0), 7, cv2.LINE_AA)
@@ -166,7 +166,9 @@ def MouseHandler(event, x, y, flags, param):
                 img = cv2.putText(img, 'Change Your Stream Key?', (45, 195), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (255, 255, 255), 2, cv2.LINE_AA)   
                 current_screen=2
             elif current_screen==1: #handle confirmed shutdown
-                os.system("sudo shutdown -h now")
+                os.system("( sleep 2 ; sudo shutdown -h now --no-wall ) &")
+                cv2.destroyAllWindows()
+                exit()
             elif current_screen==2: #handle config youtube confirmed
                 ConfigYouTube()
                 current_screen=SCREEN_MENU
