@@ -7,10 +7,13 @@ import time
 import random
 import threading
 
+# Setup the Touchscreen
 os.putenv('SDL_VIDEODRIVER','fbcon')
 os.putenv('SDL_FBDEV', '/dev/fb1')
 os.putenv('SDL_MOUSEDRV', 'TSLIB')
 os.putenv('SDL_MOUSEDEV', '/dev/input/touchscreen')
+
+# Global Variables
 SCREEN_MENU=0
 MOUSE_IGNORE=False
 WINDOW_NAME="mywindow"
@@ -21,27 +24,133 @@ START_SCANNING=False
 SCANNING=False
 PEG_AUDIO=False
 START_PEG_AUDIO=False
+TOTAL_RADIO_FILES=2
+START_FACE_DETECTED=False
+FACE_DETECTED=False
+START_DETECTION_MODE=False
+DETECTION_MODE=False
+DETECTION_MODE=False
+ACTIVITY_COUNT=0
+VOLUME=70
+FRAMES_TO_PERSIST=10
+MIN_SIZE_FOR_MOVEMENT = 2000
+MOVEMENT_DETECTED_PERSISTENCE = 100
+motion_delay_counter=1
+MOTION_DETECTED=False
+first_frame = None
+hud="/home/pi/Ghost-Catcher-Cam/hud.png"
+ALLOW_BEEP=False
+
 
 def HideMouse():
+    # Click the mouse out of the view.  for some reason, even though I hide it in the operating system, it shows when streaming.
     global MOUSE_IGNORE
-    # click the mouse out of the view.  for some reason, even though I hide it in the operating system, it shows when streaming.
+    
     MOUSE_IGNORE=True #don't want to register a real click that the logic will catch.  6 will be caught and ignored by the handler
     m = PyMouse()
     m.click(720, 480, 1)
     k=cv2.waitKey(10) # allow time to process without problems
     MOUSE_IGNORE=False
+
+def DetectObject():
+    # When Detection Mode is on, this will look for a face and
+    # Circle it for one frame
+    global object_cascade, img, object_cascade, START_FACE_DETECTED, MOTION_DETECTED
     
+    # If we are still counting down, exit the routine until we reach zero
+    if DETECTION_COUNTDOWN:
+        return
+    
+    frame_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    frame_gray = cv2.equalizeHist(frame_gray)
+    
+    if not MOTION_DETECTED:
+        # We check for motion to prevent seeing something over and over and over again.
+        DetectMotion(frame_gray)
+    
+    if MOTION_DETECTED:
+        #-- Detect objects
+        faces = object_cascade.detectMultiScale(frame_gray)
+        if len(faces)>0:
+            if not FACE_DETECTED:
+                START_FACE_DETECTED=True
+                my_random=random.randrange(8)
+                os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/spooky_sound" + str(my_random) + ".wav &")
+                for (x,y,w,h) in faces:
+                    center = (x + w//2, y + h//2)
+                    img = cv2.ellipse(img, center, (w//2, h//2), 0, 0, 360, (0, 0, 255), 4)
+                
+def DetectMotion(gray):
+    # Modified version of https://github.com/methylDragon/opencv-motion-detector/blob/master/Motion%20Detector.py
+    global first_frame, motion_delay_counter, MOTION_DETECTED
+     # Set transient motion detected as false
+    
+    motion_delay_counter += 1
+    if motion_delay_counter > FRAMES_TO_PERSIST:
+        motion_delay_counter = 0
+    else:
+        return
+
+    # Blur it to remove camera noise (reducing false positives)
+    next_frame = cv2.GaussianBlur(gray, (21, 21), 0)
+
+    # If the first frame is nothing, initialise it
+    if first_frame is None: first_frame = next_frame
+
+    # Compare the two frames, find the difference
+    frame_delta = cv2.absdiff(first_frame, next_frame)
+    thresh = cv2.threshold(frame_delta, 25, 255, cv2.THRESH_BINARY)[1]
+
+    # Fill in holes via dilate(), and find contours of the thesholds
+    thresh = cv2.dilate(thresh, None, iterations = 2)
+    _, cnts, _ = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    first_frame=next_frame
+    # loop over the contours
+    if len(cnts)==0:
+        return
+    else:
+        for c in cnts:
+            # Save the coordinates of all found contours
+            (x, y, w, h) = cv2.boundingRect(c)
+            
+            # If the contour is too small, ignore it, otherwise, there's transient
+            # movement
+            if cv2.contourArea(c) > MIN_SIZE_FOR_MOVEMENT:
+                # set up a timer to stop detecting motion for a 5 seconds and instead
+                # it will hunt for objects back in DetectObject
+                MOTION_DETECTED=True
+                motion_timer=threading.Timer(5,EndMotionDetected)
+        return
+    
+def EndMotionDetected():
+    global MOTION_DETECTED
+    MOTION_DETECTED=False
+    
+def EndFaceDetection():
+    # When a face is detected, it shows the word Anomaly
+    # for 15 seconds.  This turns the display off once
+    # time is up.
+    global FACE_DETECTED
+    FACE_DETECTED=False
+
 def StreamIt():
+    # The main routine that streams the camera
+    # and determines what to show on the dipslay
     # Reference - http://www.pyimagesearch.com/2015/03/30/accessing-the-raspberry-pi-camera-with-opencv-and-python/
     
     global current_screen, WINDOW_NAME, img, camera, rawCapture, SCREEN_MENU, STREAMING
-    global START_SCANNING, SCANNING
+    global START_SCANNING, SCANNING, DETECTION_MODE, ACTIVITY_COUNT, START_FACE_DETECTED
+    global FACE_DETECTED, ACTIVITY_COUNT, start_time, DETECTION_COUNTDOWN, hud
+    global ALLOW_BEEP
     start_time=time.time()
     
     current_screen=5
+    hud=cv2.imread('/home/pi/Ghost-Catcher-Cam/hud.png')
     os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/spooky_sound7.wav & ")
 
     img = cv2.imread('/home/pi/Ghost-Catcher-Cam/camera.png',1)
+    
     cv2.imshow(WINDOW_NAME,img)
     k=cv2.waitKey(700)
                 
@@ -54,7 +163,7 @@ def StreamIt():
     os.system("sudo chmod +777 /home/pi/Ghost-Catcher-Cam/stop")
     
     # Get the current Youtube stream key
-    streamkeyfile=open("streamkey.cfg","r")
+    streamkeyfile=open("/home/pi/Ghost-Catcher-Cam/streamkey.cfg","r")
     streamkey=streamkeyfile.read()
     streamkeyfile.close()
     # just in case there is some sloppy hand typing going on, we'll strip off any white space
@@ -73,21 +182,32 @@ def StreamIt():
     	# and occupied/unoccupied text
         img = frame.array
         
-        cv2.putText(img, 'Normal', (180, 459), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
-        cv2.putText(img, '100', (635, 53), cv2.FONT_HERSHEY_SIMPLEX, .9, (0, 0, 0), 4, cv2.LINE_AA)
-        cv2.putText(img, '100', (635, 53), cv2.FONT_HERSHEY_SIMPLEX, .9, (255, 255, 255), 2, cv2.LINE_AA)
+        if DETECTION_MODE:
+            DetectObject()
+            if START_FACE_DETECTED:
+                START_FACE_DETECTED=False
+                if not FACE_DETECTED:
+                    FACE_DETECTED=True
+                    face_thread=threading.Timer(15,EndFaceDetection)
+                    face_thread.start()
+                    ACTIVITY_COUNT=ACTIVITY_COUNT + 1
+            elif FACE_DETECTED:
+                cv2.putText(img, 'Anomaly', (180, 454), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 4, cv2.LINE_AA)        
+            else:
+                cv2.putText(img, 'Sensing', (180, 454), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2, cv2.LINE_AA)
+        else:
+            cv2.putText(img, 'Normal', (180, 454), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+
+        cv2.putText(img, str(ACTIVITY_COUNT), (635, 53), cv2.FONT_HERSHEY_SIMPLEX, .9, (0, 0, 0), 4, cv2.LINE_AA)
+        cv2.putText(img, str(ACTIVITY_COUNT), (635, 53), cv2.FONT_HERSHEY_SIMPLEX, .9, (255, 255, 255), 2, cv2.LINE_AA)
         cv2.putText(img, '70.2F', (170, 53), cv2.FONT_HERSHEY_SIMPLEX, .9, (0, 0, 0), 4, cv2.LINE_AA)
         cv2.putText(img, '70.2F', (170, 53), cv2.FONT_HERSHEY_SIMPLEX, .9, (255, 255, 255), 2, cv2.LINE_AA)
         cv2.putText(img, time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), (210,20),cv2.FONT_HERSHEY_SIMPLEX, .9, (255, 255, 255), 2, cv2.LINE_AA)
-        overlay=cv2.imread('/home/pi/Ghost-Catcher-Cam/hud.png')
-        img = cv2.addWeighted(img,1.0,overlay,1,0)
         
-        #overlay=cv2.imread('/home/pi/Ghost-Catcher-Cam/ghost.png')
-        
+        # Overlay the hud
+        img = cv2.addWeighted(img,1.0,hud,1.0,0)
+
         if SCANNING:
-            overlay=img.copy()
-            cv2.rectangle(overlay,(315,406),(416,472),(0,0,0),-1)
-            img = cv2.addWeighted(overlay,.6,img,.4,0)
             cv2.putText(img, "scanning", (230, 150), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 6, cv2.LINE_AA)
             UpdateAudioGraphic()
             
@@ -96,7 +216,21 @@ def StreamIt():
                 cv2.putText(img, str(time_left), (270, 310), cv2.FONT_HERSHEY_SIMPLEX, 4, (0, 0, 255), 6, cv2.LINE_AA)
             else:
                 cv2.putText(img, str(time_left), (330, 310), cv2.FONT_HERSHEY_SIMPLEX, 4, (0, 0, 255), 6, cv2.LINE_AA)
-
+        elif DETECTION_MODE:
+            if DETECTION_COUNTDOWN:
+                time_left=10-seconds_between(start_time,time.time())
+                
+                cv2.putText(img, "Stay Out of View!", (110, 150), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 8, cv2.LINE_AA)
+                cv2.putText(img, "Stay Out of View!", (110, 150), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 3, cv2.LINE_AA)
+                if time_left>9:
+                    cv2.putText(img, str(time_left), (270, 310), cv2.FONT_HERSHEY_SIMPLEX, 4, (0, 0, 255), 6, cv2.LINE_AA)
+                elif time_left>-1:
+                    cv2.putText(img, str(time_left), (330, 310), cv2.FONT_HERSHEY_SIMPLEX, 4, (0, 0, 255), 6, cv2.LINE_AA)
+                else:
+                    ALLOW_BEEP=False
+                    os.system("aplay -q /home/pi/Ghost-Catcher-Cam/403686__dbkeebler__sfx-shhhh.wav &")
+                    DETECTION_COUNTDOWN=False
+                
         cv2.imshow(WINDOW_NAME, img)
         key = cv2.waitKey(1)
 
@@ -106,9 +240,11 @@ def StreamIt():
     	# if the screen was tapped, break from the loop
         if START_SCANNING:
             START_SCANNING=False
+            DETECTION_MODE=False
+            hud=cv2.imread('/home/pi/Ghost-Catcher-Cam/hud_cancel.png')
             SCANNING=True
             start_time=time.time()         
-            t=threading.Timer(13.0,StopScanning)
+            t=threading.Timer(14.0,StopScanning)
             t.start()
             t1=threading.Timer(.5,PlayScanning)
             t1.start()
@@ -124,6 +260,7 @@ def StreamIt():
     	    break
 
 def UpdateAudioGraphic():
+    # This simulates audio meter
     global PEG_AUDIO, START_PEG_AUDIO
     if START_PEG_AUDIO:
         START_PEG_AUDIO=False
@@ -146,29 +283,48 @@ def UpdateAudioGraphic():
         cv2.rectangle(img,(644,317),(693,333),(0,0,255),-1)
 
 def EndPeakAudio():
+    # PEG_Audio is used to max out the audio meter
+    # on demand for a set time.  This is a used by a timer
+    # thread to stop the pegging.
     global PEG_AUDIO
     PEG_AUDIO=False
     
 def seconds_between(d1, d2):
+    # Just a quick way to determine # of seconds between
+    # two times.
     return (abs(int(d1-d2)))
 
 def PlayScanning():
-    delay=2 + random.randrange(10)
+    # Play the radio static.  Roll the 13 sided die to
+    # determine if a sound will be played.
     os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/static.wav &")
+
+    # 1 in 13 chance to hear something spooky
+    dice=random.randrange(13)
     
-    t=threading.Timer(delay,PlayScannedAudio)
-    t.start()
+    # dice=12 # eliminate this after you know the rest of the audio strategy works
+    if (dice==12):
+        delay=2 + random.randrange(10)
+        t=threading.Timer(delay,PlayScannedAudio)
+        t.start()
     
 def PlayScannedAudio():
+    # Called randomly to play a random file
     global START_PEG_AUDIO
     START_PEG_AUDIO=True
-    os.system("(aplay -q /home/pi/Ghost-Catcher-Cam/sounds/mom.wav) & ")
+    num=random.randrange(TOTAL_RADIO_FILES)
+    os.system("(aplay -q /home/pi/Ghost-Catcher-Cam/sounds/radio/" + str(num) + ".wav) & ")
+    ACTIVITY_COUNT=ACTIVITY_COUNT+1
     
 def StopScanning():
-    global SCANNING
+    # Used by a timer thread to end the 13 second audio
+    # scan routine
+    global SCANNING, hud
     SCANNING=False
+    hud=cv2.imread('/home/pi/Ghost-Catcher-Cam/hud.png')
     
 def ConfigYouTube():
+    # Routine to prompt for the Youtube Streamkey
     global img, WINDOW_NAME
     os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/spooky_sound7.wav & ")
     img = cv2.imread('/home/pi/Ghost-Catcher-Cam/confirm2.png',1)
@@ -186,7 +342,8 @@ def ConfigYouTube():
     img = cv2.imread('/home/pi/Ghost-Catcher-Cam/gui.png',1)
 
 def UpdateWiFi():
-    # sudo nano /etc/wpa_supplicant/wpa_supplicant.conf
+    # Used to prompt for the wifi credentials
+    
     the_file=open("/home/pi/Ghost-Catcher-Cam/temp_wifi_ssid.cfg","r")
     ssid=the_file.read()
     ssid=ssid.rstrip()
@@ -200,6 +357,9 @@ def UpdateWiFi():
     os.system("sudo cp /home/pi/Ghost-Catcher-Cam/tempwifi.cfg /etc/wpa_supplicant/wpa_supplicant.conf")
     
 def IsCanceled(the_file):
+    # Used to check the input from the Zenity Dialogs to see
+    # if the user canceled when configuring the Youtube
+    # Streamkey or Wifi credentials
     myfile=open(the_file,"r")
     the_value=myfile.read()
     myfile.close()
@@ -208,10 +368,9 @@ def IsCanceled(the_file):
     else:
         return False
 
-def TriggerEvent():
-    print("eventtriggered")
-    
 def ConfigWiFi():
+    # Routine to allow typing in custom WiFi Credentials
+    
     global img, WINDOW_NAME
     os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/spooky_sound7.wav & ")
     img = cv2.imread('/home/pi/Ghost-Catcher-Cam/confirm2.png',1)
@@ -242,10 +401,36 @@ def ConfigWiFi():
     img = cv2.imread('/home/pi/Ghost-Catcher-Cam/gui.png',1)
     k=cv2.waitKey(1)
 
+def StartDetectionMode():
+    # Starts the countdown for Detection Mode during Streaming
+    global START_DETECTION_MODE, DETECTION_MODE, DETECTION_COUNTDOWN,start_time,hud
+
+    START_DETECTION_MODE=False
+    DETECTION_COUNTDOWN=True
+    DETECTION_MODE=True
+    start_time=time.time()
+    countdown_thread=threading.Timer(1,BeepEverySecond)
+    countdown_thread.start()
+    hud=cv2.imread('/home/pi/Ghost-Catcher-Cam/hud_cancel.png')
+
+def BeepEverySecond():
+    # Called by the countdown_thread.  
+    # A thread that makes a beep every second until someone flags with ALLOW_BEEP
+    global ALLOW_BEEP
+    ALLOW_BEEP=True
+    for i in range(10):
+        if not ALLOW_BEEP:
+            break
+        os.system("(aplay -q /home/pi/Ghost-Catcher-Cam/sounds/202193__thomasevd__10-second-countdown.wav) &")
+        time.sleep(1)
+
+    
 def MouseHandler(event, x, y, flags, param):
-    #Handle screen taps based on what screen is showing
+    # Handle Screen Taps based on what screen is showing
+    # and what routines where running
     global user_tapped_exit, current_screen, img,WINDOW_NAME, MOUSE_IGNORE, START_STREAM
-    global START_SCANNING, SCANNING
+    global START_SCANNING, SCANNING, DETECTION_MODE, START_DETECTION_MODE, VOLUME,hud
+    global ALLOW_BEEP
     if MOUSE_IGNORE:
         return
     if event==cv2.EVENT_LBUTTONDOWN:
@@ -253,11 +438,22 @@ def MouseHandler(event, x, y, flags, param):
             os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/bink.wav &")
     elif event==cv2.EVENT_LBUTTONUP:
         # First check if we are streaming.  I fos, send the flag to abort
+        
         if STREAMING:
-            if (x>315 and x<412 and y>406 and y<472 and not SCANNING and not START_SCANNING):
+            if (x>315 and x<412 and y>406 and y<472 and not SCANNING and not START_SCANNING and not DETECTION_MODE and not START_DETECTION_MODE):
                 START_SCANNING=True
-            elif (not SCANNING  and not START_SCANNING):
+            elif (x>426 and x<562 and y>405 and y<468):
+                if (not SCANNING and not START_SCANNING and not DETECTION_MODE and not START_DETECTION_MODE):
+                    StartDetectionMode()
+                elif (DETECTION_MODE or START_DETECTION_MODE):
+                    DETECTION_MODE=False
+                    START_DETECTION_MODE=False
+                    hud=cv2.imread('/home/pi/Ghost-Catcher-Cam/hud.png')
+                    ALLOW_BEEP=False
+            elif (not SCANNING  and not START_SCANNING and not DETECTION_MODE and not START_DETECTION_MODE):
                 current_screen=SCREEN_MENU
+            
+            HideMouse()    
             return
         elif (x>82 and x<252 and y>90 and y<217 and current_screen==SCREEN_MENU): #handle go live tap
             current_screen=4
@@ -270,7 +466,6 @@ def MouseHandler(event, x, y, flags, param):
                 img = cv2.imread('/home/pi/Ghost-Catcher-Cam/confirm.png',1)
                 img = cv2.putText(img, 'Turn Off Camera?', (45, 195), cv2.FONT_HERSHEY_SIMPLEX, 2.25, (0, 0, 0), 7, cv2.LINE_AA)
                 img = cv2.putText(img, 'Turn Off Camera?', (45, 195), cv2.FONT_HERSHEY_SIMPLEX, 2.25, (255, 255, 255), 4, cv2.LINE_AA)  
-                
             elif current_screen==1:
                 os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/shutdown.wav &")
                 img = cv2.imread('/home/pi/Ghost-Catcher-Cam/exit.png',1)
@@ -312,25 +507,55 @@ def MouseHandler(event, x, y, flags, param):
                 os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
                 img = cv2.imread('/home/pi/Ghost-Catcher-Cam/gui.png',1)
                 current_screen=SCREEN_MENU
+        elif (x>340 and x<383 and y>283 and y<319 and current_screen==SCREEN_MENU):
+            VOLUME=VOLUME+3
+            if (VOLUME>100):
+                VOLUME=100
+                os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
+            os.system("echo \"" + str(VOLUME) + "\" > /home/pi/Ghost-Catcher-Cam/volume.cfg &")
+            os.system("amixer -q set PCM " + str(VOLUME) + "%")                
+        elif (x>340 and x<395 and y>395 and y<433 and current_screen==SCREEN_MENU):
+            VOLUME=VOLUME-3
+            if (VOLUME<70):
+                VOLUME=70
+                os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
+            os.system("echo \"" + str(VOLUME) + "\" > /home/pi/Ghost-Catcher-Cam/volume.cfg &")
+            os.system("amixer -q set PCM " + str(VOLUME) + "%")
         cv2.imshow(WINDOW_NAME,img)
-
-# Begin Main
+        HideMouse()
+        
+def GetVolume():
+    # Retrieves last set volume
+    global VOLUME
+    fd=open("/home/pi/Ghost-Catcher-Cam/volume.cfg","r")
+    VOLUME=int(fd.read())
+    fd.close()
+    
+# Main
 user_tapped_exit=False
 current_screen=SCREEN_MENU
 img = cv2.imread('/home/pi/Ghost-Catcher-Cam/gui.png',1)
+
+# Seed a random object with the current time
 random.seed()
+
 # Set Display Brightness to maximum
 os.system("sudo chmod a+rw /sys/class/backlight/soc\:backlight/brightness")
 os.system("sudo sh -c 'echo \"1\" > /sys/class/backlight/soc\:backlight/brightness'")
-# setup the GUI window and mouse callback routine
+
+# Setup the OpenCV driven GUI window and mouse callback routine
 cv2.namedWindow(WINDOW_NAME,0)
 cv2.setWindowProperty(WINDOW_NAME, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN);
 cv2.setWindowProperty(WINDOW_NAME, cv2.WND_PROP_AUTOSIZE, cv2.WINDOW_AUTOSIZE);
 cv2.imshow(WINDOW_NAME,img)
 cv2.setMouseCallback(WINDOW_NAME, MouseHandler)
 
+# Play the startup sound
+GetVolume()
+os.system("amixer -q set PCM " + str(VOLUME) + "%")
 os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/331620__hykenfreak__spooky-sucking-air.wav &")
-# initialize the camera and grab a reference to the raw camera capture
+
+# Initialize the camera and grab a reference to the raw camera capture
 camera = PiCamera()
 camera.resolution = (720, 480)
 camera.framerate = 30
@@ -338,18 +563,27 @@ camera.rotation = 180
 rawCapture = PiRGBArray(camera, size=(720, 480) )
 trigger_time=100
 
+# OpenCV Object Classification Setup
+object_cascade = cv2.CascadeClassifier()
+
+# Load the object cascade for face detection
+# XML file retrieved from https://github.com/opencv/opencv/tree/master/data/haarcascades/haarcascade_frontalface_alt.xml
+# fully body:  /home/pi/Ghost-Catcher-Cam/opencv/haarcascade_fullbody.xml
+# face: /home/pi/Ghost-Catcher-Cam/opencv/haarcascade_frontalface_alt.xml
+if not object_cascade.load('/home/pi/Ghost-Catcher-Cam/opencv/haarcascade_frontalface_alt.xml'):
+    print('--(!)Error loading object cascade')
+    exit(0)
+
 # Loop forever until a keyboard key is hit or they close it through the GUI
 while not user_tapped_exit:
-    #if (time.gmtime()>trigger_time):
-    #    TriggerEvent()
-    #    trigger_time=time.gmtime()+60*10+(random.randrange(15)*60)
-        
     k = cv2.waitKey(10)
     if START_STREAM:
+        # Handles the transition from the GUI to the
+        # Stream Display
         STREAMING=True
         START_STREAM=False
         StreamIt()
         
-        
+# Cleanup and exit
 cv2.destroyAllWindows()
 exit()
