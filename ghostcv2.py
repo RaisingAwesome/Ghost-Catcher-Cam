@@ -241,7 +241,7 @@ def StreamIt():
         if START_SCANNING:
             START_SCANNING=False
             DETECTION_MODE=False
-            hud=cv2.imread('/home/pi/Ghost-Catcher-Cam/hud_cancel.png')
+            hud=cv2.imread('/home/pi/Ghost-Catcher-Cam/hud_scanning.png')
             SCANNING=True
             start_time=time.time()         
             t=threading.Timer(14.0,StopScanning)
@@ -330,16 +330,19 @@ def ConfigYouTube():
     img = cv2.imread('/home/pi/Ghost-Catcher-Cam/confirm2.png',1)
     cv2.imshow(WINDOW_NAME,img)
     k=cv2.waitKey(1)
-    my_result=os.system("echo $(DISPLAY=:0.0 zenity --title='WiFi Config' --text='Attach Keyboard and Enter YouTube Stream Key:' --entry --width=300 --height=200 --ok-label='SET') >/home/pi/Ghost-Catcher-Cam/temp_streamkey.cfg")
+    
+    my_result=os.system("echo $(DISPLAY=:0.0 zenity --title='WiFi Config' --text='Attach Keyboard and Enter YouTube Stream Key:' --entry --width=680 --height=480 --ok-label='SET') >/home/pi/Ghost-Catcher-Cam/temp_streamkey.cfg")
     if not IsCanceled("/home/pi/Ghost-Catcher-Cam/temp_streamkey.cfg"):
         cv2.imshow(WINDOW_NAME,img)
         k=cv2.waitKey(10)
         # do the copying
         os.system("cp /home/pi/Ghost-Catcher-Cam/temp_streamkey.cfg /home/pi/Ghost-Catcher-Cam/streamkey.cfg")
-        my_result=os.system("DISPLAY=:0.0 zenity --title='WiFi Config' --info='Stream Set, Good Job.' --width=100 --height=100")
+        
+        my_result=os.system("DISPLAY=:0.0 zenity --title='WiFi Config' --info='Stream Set, Good Job.' --width=680 --height=480")
     else:
         os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
     img = cv2.imread('/home/pi/Ghost-Catcher-Cam/gui.png',1)
+    cv2.imshow(WINDOW_NAME,img)
 
 def UpdateWiFi():
     # Used to prompt for the wifi credentials
@@ -376,18 +379,21 @@ def ConfigWiFi():
     img = cv2.imread('/home/pi/Ghost-Catcher-Cam/confirm2.png',1)
     cv2.imshow(WINDOW_NAME,img)
     k=cv2.waitKey(1)
-    my_result=os.system("echo $(DISPLAY=:0.0 zenity --title='WiFi Config' --text='Attach Keyboard and Enter SSID:' --entry --width=300 --height=200 --ok-label='SET') >/home/pi/Ghost-Catcher-Cam/temp_wifi_ssid.cfg")
+    
+    my_result=os.system("echo $(DISPLAY=:0.0 zenity --title='WiFi Config' --text='Attach Keyboard and Enter SSID:' --entry --width=680 --height=480 --ok-label='SET') >/home/pi/Ghost-Catcher-Cam/temp_wifi_ssid.cfg")
     if not IsCanceled("/home/pi/Ghost-Catcher-Cam/temp_wifi_ssid.cfg"):
         cv2.imshow(WINDOW_NAME,img)
         k=cv2.waitKey(10)
-        my_result=os.system("echo $(DISPLAY=:0.0 zenity --title='WiFi Config' --text='Enter Password:' --entry --hide-text --width=300 --height=200 --ok-label='SET') >/home/pi/Ghost-Catcher-Cam/temp_wifi_password.cfg")    
+        
+        my_result=os.system("echo $(DISPLAY=:0.0 zenity --title='WiFi Config' --text='Enter Password:' --entry --width=680 --height=480 --ok-label='SET') >/home/pi/Ghost-Catcher-Cam/temp_wifi_password.cfg")    
         cv2.imshow(WINDOW_NAME,img)
         k=cv2.waitKey(10)
         os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/spooky_sound7.wav & ")
         if not IsCanceled("/home/pi/Ghost-Catcher-Cam/temp_wifi_password.cfg"):
             # do the copying
             UpdateWiFi()
-            my_result=os.system("DISPLAY=:0.0 zenity --title='WiFi Config' --info='WiFi Reset!  Tap to Reboot' --width=100 --height=100")
+            
+            my_result=os.system("DISPLAY=:0.0 zenity --title='WiFi Config' --info='WiFi Reset!  Tap to Reboot' --width=680 --height=480")
             img = cv2.imread('/home/pi/Ghost-Catcher-Cam/rebooting.png',1)
             cv2.imshow(WINDOW_NAME,img)
             k=cv2.waitKey(2000)
@@ -399,6 +405,7 @@ def ConfigWiFi():
     else:
         os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
     img = cv2.imread('/home/pi/Ghost-Catcher-Cam/gui.png',1)
+    cv2.imshow(WINDOW_NAME,img)
     k=cv2.waitKey(1)
 
 def StartDetectionMode():
@@ -436,6 +443,9 @@ def MouseHandler(event, x, y, flags, param):
     if event==cv2.EVENT_LBUTTONDOWN:
         if not SCANNING:
             os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/bink.wav &")
+        else:
+            os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
+        return    
     elif event==cv2.EVENT_LBUTTONUP:
         # First check if we are streaming.  I fos, send the flag to abort
         
@@ -446,42 +456,55 @@ def MouseHandler(event, x, y, flags, param):
                 if (not SCANNING and not START_SCANNING and not DETECTION_MODE and not START_DETECTION_MODE):
                     StartDetectionMode()
                 elif (DETECTION_MODE or START_DETECTION_MODE):
+                    # Kill detection Mode
                     DETECTION_MODE=False
                     START_DETECTION_MODE=False
                     hud=cv2.imread('/home/pi/Ghost-Catcher-Cam/hud.png')
                     ALLOW_BEEP=False
+                else:
+                    os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
             elif (not SCANNING  and not START_SCANNING and not DETECTION_MODE and not START_DETECTION_MODE):
                 current_screen=SCREEN_MENU
             
             HideMouse()    
             return
-        elif (x>82 and x<252 and y>90 and y<217 and current_screen==SCREEN_MENU): #handle go live tap
+        elif (x>82 and x<252 and y>90 and y<217 and current_screen==SCREEN_MENU): 
+            # Handle the Go live tap
             current_screen=4
             img = cv2.imread('/home/pi/Ghost-Catcher-Cam/confirm.png',1)
             img = cv2.putText(img, 'Start Streaming!?', (67, 195), cv2.FONT_HERSHEY_SIMPLEX, 2.25, (0, 0, 0), 7, cv2.LINE_AA)
             img = cv2.putText(img, 'Start Streaming!?', (67, 195), cv2.FONT_HERSHEY_SIMPLEX, 2.25, (255, 255, 255), 4, cv2.LINE_AA)
+            cv2.imshow(WINDOW_NAME,img)
         elif (x>465 and x<627 and y>90 and y<217):
-            if current_screen==SCREEN_MENU: #Handle tapped power button
+            if current_screen==SCREEN_MENU: 
+                # Handle the tapped power button
                 current_screen=1
                 img = cv2.imread('/home/pi/Ghost-Catcher-Cam/confirm.png',1)
                 img = cv2.putText(img, 'Turn Off Camera?', (45, 195), cv2.FONT_HERSHEY_SIMPLEX, 2.25, (0, 0, 0), 7, cv2.LINE_AA)
                 img = cv2.putText(img, 'Turn Off Camera?', (45, 195), cv2.FONT_HERSHEY_SIMPLEX, 2.25, (255, 255, 255), 4, cv2.LINE_AA)  
+                cv2.imshow(WINDOW_NAME,img)
             elif current_screen==1:
+                # Handle Shutting Down to Desktop
                 os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/shutdown.wav &")
                 img = cv2.imread('/home/pi/Ghost-Catcher-Cam/exit.png',1)
                 cv2.imshow(WINDOW_NAME,img)
                 k=cv2.waitKey(2000)
                 user_tapped_exit=True
             else:
-                current_screen=SCREEN_MENU
-                img = cv2.imread('/home/pi/Ghost-Catcher-Cam/gui.png',1)
+                # Handle clicking power region without a screen that needs it.
+                os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
+                HideMouse()
         elif (x>82 and x<252 and y>294 and y<420):
             if current_screen==SCREEN_MENU: #handle config youtube
                 img = cv2.imread('/home/pi/Ghost-Catcher-Cam/confirm.png',1)
                 img = cv2.putText(img, 'Change Your Stream Key?', (45, 195), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 0, 0), 5, cv2.LINE_AA)
-                img = cv2.putText(img, 'Change Your Stream Key?', (45, 195), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (255, 255, 255), 2, cv2.LINE_AA)   
+                img = cv2.putText(img, 'Change Your Stream Key?', (45, 195), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (255, 255, 255), 2, cv2.LINE_AA)
+                cv2.imshow(WINDOW_NAME,img)
                 current_screen=2
-            elif current_screen==1: #handle confirmed shutdown
+                HideMouse()
+                return
+            elif current_screen==1: 
+                # Handle confirmed shutdown
                 os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/shutdown.wav &")
                 os.system("( sleep 5 ; sudo shutdown -h now --no-wall ) &")
                 img = cv2.imread('/home/pi/Ghost-Catcher-Cam/exit.png',1)
@@ -492,38 +515,64 @@ def MouseHandler(event, x, y, flags, param):
             elif current_screen==2: #handle config youtube confirmed
                 ConfigYouTube()
                 current_screen=SCREEN_MENU
+                return
             elif current_screen==3: #handle config wifi confirmed
                 ConfigWiFi()
                 current_screen=SCREEN_MENU
+                return
             elif current_screen==4: #handle start streaming confirmed
                 START_STREAM=True
+                return
+            else:
+                # Handle hitting the youtube button region on a screen that won't do anything
+                os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
+                return
         elif (x>465 and x<627 and y>294 and y<420):
             if current_screen==SCREEN_MENU: #handle config wifi 
                 img = cv2.imread('/home/pi/Ghost-Catcher-Cam/confirm.png',1)
                 img = cv2.putText(img, 'Config WiFi?', (172, 195), cv2.FONT_HERSHEY_SIMPLEX, 2.25, (0, 0, 0), 7, cv2.LINE_AA)
                 img = cv2.putText(img, 'Config WiFi?', (172, 195), cv2.FONT_HERSHEY_SIMPLEX, 2.25, (255, 255, 255), 4, cv2.LINE_AA)
+                cv2.imshow(WINDOW_NAME,img)
                 current_screen=3
-            elif current_screen==1 or current_screen==2 or current_screen==3 or current_screen==4: #handle No
-                os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
+                return
+            elif current_screen==1 or current_screen==2 or current_screen==3 or current_screen==4: 
+                # Handle No
                 img = cv2.imread('/home/pi/Ghost-Catcher-Cam/gui.png',1)
+                cv2.imshow(WINDOW_NAME,img)
                 current_screen=SCREEN_MENU
-        elif (x>340 and x<383 and y>283 and y<319 and current_screen==SCREEN_MENU):
+                return
+            else:
+                # Handle if they hit the Wifi/No region on a screen that doesn't do anything with it.
+                os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
+                cv2.imshow(WINDOW_NAME,img)
+                return
+        elif (x>330 and x<400 and y>283 and y<329 and current_screen==SCREEN_MENU):
+            # Handle volume Up
             VOLUME=VOLUME+3
             if (VOLUME>100):
                 VOLUME=100
                 os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
+            else:
+                os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/volumeup.wav &")
             os.system("echo \"" + str(VOLUME) + "\" > /home/pi/Ghost-Catcher-Cam/volume.cfg &")
             os.system("amixer -q set PCM " + str(VOLUME) + "%")                
-        elif (x>340 and x<395 and y>395 and y<433 and current_screen==SCREEN_MENU):
+            return
+        elif (x>330 and x<400 and y>395 and y<453 and current_screen==SCREEN_MENU):
             VOLUME=VOLUME-3
             if (VOLUME<70):
                 VOLUME=70
                 os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
+            else:
+                os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/volumedown.wav &")
             os.system("echo \"" + str(VOLUME) + "\" > /home/pi/Ghost-Catcher-Cam/volume.cfg &")
             os.system("amixer -q set PCM " + str(VOLUME) + "%")
-        cv2.imshow(WINDOW_NAME,img)
-        HideMouse()
-        
+            return
+        else:
+            # Handle a tap in a region on a screen that had no response
+            os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
+            HideMouse()
+        return
+
 def GetVolume():
     # Retrieves last set volume
     global VOLUME
