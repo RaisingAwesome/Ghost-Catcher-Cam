@@ -317,7 +317,7 @@ def PlayScanning():
     
 def PlayScannedAudio():
     # Called randomly to play a random file
-    global START_PEG_AUDIO
+    global START_PEG_AUDIO, ACTIVITY_COUNT
     START_PEG_AUDIO=True
     num=random.randrange(TOTAL_RADIO_FILES)
     os.system("(aplay -q /home/pi/Ghost-Catcher-Cam/sounds/radio/" + str(num) + ".wav) & ")
@@ -472,7 +472,8 @@ def MouseHandler(event, x, y, flags, param):
                     os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
             elif (not SCANNING  and not START_SCANNING and not DETECTION_MODE and not START_DETECTION_MODE):
                 current_screen=SCREEN_MENU
-            
+            else:
+                os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
             HideMouse()    
             return
         elif (x>82 and x<252 and y>90 and y<217 and current_screen==SCREEN_MENU): 
