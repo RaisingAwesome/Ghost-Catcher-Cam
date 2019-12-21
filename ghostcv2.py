@@ -183,7 +183,11 @@ def StreamIt():
         img = frame.array
         
         if DETECTION_MODE:
-            DetectObject()
+            if not FACE_DETECTED:
+                # If we saw a face in the last 15 seconds, don't speed up the frame rate
+                # by bypassing DetectObject()
+                DetectObject()
+            
             if START_FACE_DETECTED:
                 START_FACE_DETECTED=False
                 if not FACE_DETECTED:
@@ -206,7 +210,10 @@ def StreamIt():
         
         # Overlay the hud
         img = cv2.addWeighted(img,1.0,hud,1.0,0)
-
+        if FACE_DETECTED:
+            # Update the Audio Graphic after the HUD is displayed; otherwise, the white
+            # blocks of the HUD would go over the top of the audioGraphic.
+            UpdateAudioGraphic()
         if SCANNING:
             cv2.putText(img, "scanning", (230, 150), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 6, cv2.LINE_AA)
             UpdateAudioGraphic()
