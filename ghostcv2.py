@@ -237,6 +237,7 @@ def StreamIt():
                     ALLOW_BEEP=False
                     os.system("aplay -q /home/pi/Ghost-Catcher-Cam/403686__dbkeebler__sfx-shhhh.wav &")
                     DETECTION_COUNTDOWN=False
+                    hud=cv2.imread('/home/pi/Ghost-Catcher-Cam/hud_scanning.png')
                 
         cv2.imshow(WINDOW_NAME, img)
         key = cv2.waitKey(1)
@@ -474,6 +475,10 @@ def MouseHandler(event, x, y, flags, param):
                 current_screen=SCREEN_MENU
             else:
                 os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
+                
+            if DETECTION_MODE:
+                hud=cv2.imread('/home/pi/Ghost-Catcher-Cam/hud_cancel.png')
+                cv2.imshow(WINDOW_NAME,img)
             HideMouse()    
             return
         elif (x>82 and x<252 and y>90 and y<217 and current_screen==SCREEN_MENU): 
