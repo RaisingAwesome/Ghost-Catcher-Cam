@@ -78,7 +78,21 @@ c.  Hide your Taskbar.  To do this, open a terminal and edit the LXDE-pi/autosta
       
       #comment out the line with @lxpanel --profile LXDE
 
-### 6.  Make it Autoboot
+### 6.  Accelerometer
+a.  The 3-axis magnetometer:  https://www.amazon.com/gp/product/B008V9S64E/ref=ppx_yo_dt_b_asin_title_o08_s00?ie=UTF8&psc=1
+
+b.  It is used for the "scan" mini game that requires turning and camera and holding it very still in order to hear audio.
+
+c.  Clone the accelerometer repo:
+
+      git clone https://github.com/RigacciOrg/py-qmc5883l.git
+      cd py-qmc58831
+      python3 setup.py install
+      cd ..
+      rm -r py-qmc58831 #if you want to free up space
+
+
+### 7.  Make it Autoboot
 You first have to set permissions on the runner file:
 
       cd ~/Ghost-Catcher-Cam
