@@ -87,7 +87,7 @@ c.  Clone the accelerometer repo:
 
       git clone https://github.com/RigacciOrg/py-qmc5883l.git
       cd py-qmc58831
-      python3 setup.py install
+      sudo python3 setup.py install
       cd ..
       rm -r py-qmc58831 #if you want to free up space
 
