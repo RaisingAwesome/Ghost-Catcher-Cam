@@ -147,6 +147,7 @@ def StreamIt():
     
     current_screen=5
     hud=cv2.imread('/home/pi/Ghost-Catcher-Cam/hud.png')
+    greenscreen=cv2.imread('/home/pi/Ghost-Catcher-Cam/greenscreen.png')
     os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/spooky_sound7.wav & ")
 
     img = cv2.imread('/home/pi/Ghost-Catcher-Cam/camera.png',1)
@@ -181,7 +182,7 @@ def StreamIt():
     	# grab the raw NumPy array representing the image, then initialize the timestamp
     	# and occupied/unoccupied text
         img = frame.array
-        
+
         if DETECTION_MODE:
             if not FACE_DETECTED:
                 # If we saw a face in the last 15 seconds, don't speed up the frame rate
@@ -207,9 +208,11 @@ def StreamIt():
         cv2.putText(img, '70.2F', (170, 53), cv2.FONT_HERSHEY_SIMPLEX, .9, (0, 0, 0), 4, cv2.LINE_AA)
         cv2.putText(img, '70.2F', (170, 53), cv2.FONT_HERSHEY_SIMPLEX, .9, (255, 255, 255), 2, cv2.LINE_AA)
         cv2.putText(img, time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), (210,20),cv2.FONT_HERSHEY_SIMPLEX, .9, (255, 255, 255), 2, cv2.LINE_AA)
-        
+
         # Overlay the hud
+        img = cv2.addWeighted(img,1.0,greenscreen,.2,0)
         img = cv2.addWeighted(img,1.0,hud,1.0,0)
+
         if FACE_DETECTED:
             # Update the Audio Graphic after the HUD is displayed; otherwise, the white
             # blocks of the HUD would go over the top of the audioGraphic.
@@ -621,7 +624,7 @@ os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/331620__hykenfreak__spooky
 camera = PiCamera()
 camera.resolution = (720, 480)
 camera.framerate = 30
-camera.rotation = 180
+camera.rotation = 0
 rawCapture = PiRGBArray(camera, size=(720, 480) )
 trigger_time=100
 
