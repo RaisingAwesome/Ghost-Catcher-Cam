@@ -147,7 +147,7 @@ def StreamIt():
     
     current_screen=5
     hud=cv2.imread('/home/pi/Ghost-Catcher-Cam/hud.png')
-    greenscreen=cv2.imread('/home/pi/Ghost-Catcher-Cam/greenscreen.png')
+    hud2=hud
     os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/spooky_sound7.wav & ")
 
     img = cv2.imread('/home/pi/Ghost-Catcher-Cam/camera.png',1)
@@ -171,7 +171,7 @@ def StreamIt():
     streamkey=streamkey.rstrip()
     
     # Start streaming with ffmpeg
-    streamkey="</home/pi/Ghost-Catcher-Cam/stop /usr/bin/ffmpeg -f lavfi -i anullsrc -f x11grab -framerate 30 -video_size 720x480 -i :0.0 -f flv -s 720x480 rtmp://a.rtmp.youtube.com/live2/" + streamkey + " >/dev/null 2>>Capture.log &"
+    streamkey="</home/pi/Ghost-Catcher-Cam/stop /usr/bin/ffmpeg -f lavfi -i anullsrc -f x11grab -framerate 30 -video_size 720x480 -i :0.0 -f flv -s 854x480 -b:v 1M rtmp://a.rtmp.youtube.com/live2/" + streamkey + " >/dev/null 2>>Capture.log &"
     os.system(streamkey)
     
     HideMouse()
@@ -197,21 +197,21 @@ def StreamIt():
                     face_thread.start()
                     ACTIVITY_COUNT=ACTIVITY_COUNT + 1
             elif FACE_DETECTED:
-                cv2.putText(img, 'Anomaly', (180, 454), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 4, cv2.LINE_AA)        
+                cv2.putText(img, 'Anomaly', (180, 454), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 4, cv2.LINE_AA)
             else:
                 cv2.putText(img, 'Sensing', (180, 454), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2, cv2.LINE_AA)
         else:
             cv2.putText(img, 'Normal', (180, 454), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+            if not SCANNING:
+                cv2.rectangle(img,(320,410),(412,470),(0,0,0),-1)
+                cv2.rectangle(img,(430,410),(563,470),(0,0,0),-1)
+                hud=hud2 #probably uses too many resources.  Better to use a flag field here.
 
         cv2.putText(img, str(ACTIVITY_COUNT), (635, 53), cv2.FONT_HERSHEY_SIMPLEX, .9, (0, 0, 0), 4, cv2.LINE_AA)
         cv2.putText(img, str(ACTIVITY_COUNT), (635, 53), cv2.FONT_HERSHEY_SIMPLEX, .9, (255, 255, 255), 2, cv2.LINE_AA)
         cv2.putText(img, '70.2F', (170, 53), cv2.FONT_HERSHEY_SIMPLEX, .9, (0, 0, 0), 4, cv2.LINE_AA)
         cv2.putText(img, '70.2F', (170, 53), cv2.FONT_HERSHEY_SIMPLEX, .9, (255, 255, 255), 2, cv2.LINE_AA)
         cv2.putText(img, time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), (210,20),cv2.FONT_HERSHEY_SIMPLEX, .9, (255, 255, 255), 2, cv2.LINE_AA)
-
-        # Overlay the hud
-        img = cv2.addWeighted(img,1.0,greenscreen,.2,0)
-        img = cv2.addWeighted(img,1.0,hud,1.0,0)
 
         if FACE_DETECTED:
             # Update the Audio Graphic after the HUD is displayed; otherwise, the white
@@ -229,7 +229,7 @@ def StreamIt():
         elif DETECTION_MODE:
             if DETECTION_COUNTDOWN:
                 time_left=10-seconds_between(start_time,time.time())
-                
+                 
                 cv2.putText(img, "Stay Out of View!", (110, 150), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 8, cv2.LINE_AA)
                 cv2.putText(img, "Stay Out of View!", (110, 150), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 3, cv2.LINE_AA)
                 if time_left>9:
@@ -241,7 +241,7 @@ def StreamIt():
                     os.system("aplay -q /home/pi/Ghost-Catcher-Cam/403686__dbkeebler__sfx-shhhh.wav &")
                     DETECTION_COUNTDOWN=False
                     hud=cv2.imread('/home/pi/Ghost-Catcher-Cam/hud_scanning.png')
-                
+        img = cv2.addWeighted(img,1.0,hud,1.0,0)
         cv2.imshow(WINDOW_NAME, img)
         key = cv2.waitKey(1)
 
@@ -571,7 +571,7 @@ def MouseHandler(event, x, y, flags, param):
             else:
                 os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/volumeup.wav &")
             os.system("echo \"" + str(VOLUME) + "\" > /home/pi/Ghost-Catcher-Cam/volume.cfg &")
-            os.system("amixer -q set PCM " + str(VOLUME) + "%")                
+            os.system("amixer -q set Headphone " + str(VOLUME) + "%")                
             return
         elif (x>330 and x<400 and y>395 and y<453 and current_screen==SCREEN_MENU):
             VOLUME=VOLUME-3
@@ -581,7 +581,7 @@ def MouseHandler(event, x, y, flags, param):
             else:
                 os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/volumedown.wav &")
             os.system("echo \"" + str(VOLUME) + "\" > /home/pi/Ghost-Catcher-Cam/volume.cfg &")
-            os.system("amixer -q set PCM " + str(VOLUME) + "%")
+            os.system("amixer -q set Headphone " + str(VOLUME) + "%")
             return
         else:
             # Handle a tap in a region on a screen that had no response
@@ -617,7 +617,7 @@ cv2.setMouseCallback(WINDOW_NAME, MouseHandler)
 
 # Play the startup sound
 GetVolume()
-os.system("amixer -q set PCM " + str(VOLUME) + "%")
+os.system("amixer -q set Headphone " + str(VOLUME) + "%")
 os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/331620__hykenfreak__spooky-sucking-air.wav &")
 
 # Initialize the camera and grab a reference to the raw camera capture
@@ -625,6 +625,9 @@ camera = PiCamera()
 camera.resolution = (720, 480)
 camera.framerate = 30
 camera.rotation = 0
+camera.exposure_mode='night'
+camera.image_effect='denoise'
+camera.brightness = 50
 rawCapture = PiRGBArray(camera, size=(720, 480) )
 trigger_time=100
 
