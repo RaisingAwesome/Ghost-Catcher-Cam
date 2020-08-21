@@ -123,3 +123,9 @@ To eliminate the lightening bolt shown when the board is underpowered:
       Disable under-voltage warning
       avoid_warnings=1  
       
+Sound troubleshooting:
+      After updating, you might run into an error that amixer is unable to find a simple control
+      First do a sudo raspi-config-->Advanced Options-->Audio-->Headphones
+      Type: amixer scontrols
+      This will give you the name of the sound card.  Edit ghostcv2.py on the 3 lines that contain 
+      amixer to enxure it is calling the sound card correctly.
