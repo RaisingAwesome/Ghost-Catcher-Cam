@@ -240,7 +240,7 @@ def StreamIt():
                     cv2.putText(img, str(time_left), (330, 310), cv2.FONT_HERSHEY_SIMPLEX, 4, (0, 0, 255), 6, cv2.LINE_AA)
                 else:
                     ALLOW_BEEP=False
-                    os.system("aplay -q /home/pi/Ghost-Catcher-Cam/403686__dbkeebler__sfx-shhhh.wav &")
+                    os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/403686__dbkeebler__sfx-shhhh.wav &")
                     DETECTION_COUNTDOWN=False
                     hud=cv2.imread('/home/pi/Ghost-Catcher-Cam/hud_scanning.png')
         img = cv2.addWeighted(img,1.0,hud,1.0,0)
