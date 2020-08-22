@@ -164,7 +164,7 @@ def StreamIt():
     os.system("sudo chmod +777 /home/pi/Ghost-Catcher-Cam/stop")
     
     # Get the current Youtube stream key
-    streamkeyfile=open("/home/pi/Ghost-Catcher-Cam/streamkey.cfg","r")
+    streamkeyfile=open("/home/pi/Ghost-Catcher-Cam/config/streamkey.cfg","r")
     streamkey=streamkeyfile.read()
     streamkeyfile.close()
     # just in case there is some sloppy hand typing going on, we'll strip off any white space
@@ -344,12 +344,12 @@ def ConfigYouTube():
     cv2.imshow(WINDOW_NAME,img)
     k=cv2.waitKey(1)
     
-    my_result=os.system("echo $(DISPLAY=:0.0 zenity --title='WiFi Config' --text='Attach Keyboard and Enter YouTube Stream Key:' --entry --width=680 --height=480 --ok-label='SET') >/home/pi/Ghost-Catcher-Cam/temp_streamkey.cfg")
-    if not IsCanceled("/home/pi/Ghost-Catcher-Cam/temp_streamkey.cfg"):
+    my_result=os.system("echo $(DISPLAY=:0.0 zenity --title='WiFi Config' --text='Attach Keyboard and Enter YouTube Stream Key:' --entry --width=680 --height=480 --ok-label='SET') >/home/pi/Ghost-Catcher-Cam/config/temp_streamkey.cfg")
+    if not IsCanceled("/home/pi/Ghost-Catcher-Cam/config/temp_streamkey.cfg"):
         cv2.imshow(WINDOW_NAME,img)
         k=cv2.waitKey(10)
         # do the copying
-        os.system("cp /home/pi/Ghost-Catcher-Cam/temp_streamkey.cfg /home/pi/Ghost-Catcher-Cam/streamkey.cfg")
+        os.system("cp /home/pi/Ghost-Catcher-Cam/config/temp_streamkey.cfg /home/pi/Ghost-Catcher-Cam/config/streamkey.cfg")
         
         my_result=os.system("DISPLAY=:0.0 zenity --title='WiFi Config' --info='Stream Set, Good Job.' --width=680 --height=480")
     else:
@@ -360,17 +360,17 @@ def ConfigYouTube():
 def UpdateWiFi():
     # Used to prompt for the wifi credentials
     
-    the_file=open("/home/pi/Ghost-Catcher-Cam/temp_wifi_ssid.cfg","r")
+    the_file=open("/home/pi/Ghost-Catcher-Cam/config/temp_wifi_ssid.cfg","r")
     ssid=the_file.read()
     ssid=ssid.rstrip()
     the_file.close
-    the_file=open("/home/pi/Ghost-Catcher-Cam/temp_wifi_password.cfg","r")
+    the_file=open("/home/pi/Ghost-Catcher-Cam/config/temp_wifi_password.cfg","r")
     pwd=the_file.read()
     pwd=pwd.rstrip()
     the_file.close()
 
-    os.system("echo \"ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev\\nupdate_config=1\\ncountry=US\\n\\nnetwork={\\nssid=\\\"" + ssid + "\\\"\\npsk=\\\"" + pwd + "\\\"\\nkey_mgmt=WPA-PSK\\n}\" > /home/pi/Ghost-Catcher-Cam/tempwifi.cfg")
-    os.system("sudo cp /home/pi/Ghost-Catcher-Cam/tempwifi.cfg /etc/wpa_supplicant/wpa_supplicant.conf")
+    os.system("echo \"ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev\\nupdate_config=1\\ncountry=US\\n\\nnetwork={\\nssid=\\\"" + ssid + "\\\"\\npsk=\\\"" + pwd + "\\\"\\nkey_mgmt=WPA-PSK\\n}\" > /home/pi/Ghost-Catcher-Cam/config/tempwifi.cfg")
+    os.system("sudo cp /home/pi/Ghost-Catcher-Cam/config/tempwifi.cfg /etc/wpa_supplicant/wpa_supplicant.conf")
     
 def IsCanceled(the_file):
     # Used to check the input from the Zenity Dialogs to see
@@ -393,16 +393,16 @@ def ConfigWiFi():
     cv2.imshow(WINDOW_NAME,img)
     k=cv2.waitKey(1)
     
-    my_result=os.system("echo $(DISPLAY=:0.0 zenity --title='WiFi Config' --text='Attach Keyboard and Enter SSID:' --entry --width=680 --height=480 --ok-label='SET') >/home/pi/Ghost-Catcher-Cam/temp_wifi_ssid.cfg")
-    if not IsCanceled("/home/pi/Ghost-Catcher-Cam/temp_wifi_ssid.cfg"):
+    my_result=os.system("echo $(DISPLAY=:0.0 zenity --title='WiFi Config' --text='Attach Keyboard and Enter SSID:' --entry --width=680 --height=480 --ok-label='SET') >/home/pi/Ghost-Catcher-Cam/config/temp_wifi_ssid.cfg")
+    if not IsCanceled("/home/pi/Ghost-Catcher-Cam/config/temp_wifi_ssid.cfg"):
         cv2.imshow(WINDOW_NAME,img)
         k=cv2.waitKey(10)
         
-        my_result=os.system("echo $(DISPLAY=:0.0 zenity --title='WiFi Config' --text='Enter Password:' --entry --width=680 --height=480 --ok-label='SET') >/home/pi/Ghost-Catcher-Cam/temp_wifi_password.cfg")    
+        my_result=os.system("echo $(DISPLAY=:0.0 zenity --title='WiFi Config' --text='Enter Password:' --entry --width=680 --height=480 --ok-label='SET') >/home/pi/Ghost-Catcher-Cam/config/temp_wifi_password.cfg")    
         cv2.imshow(WINDOW_NAME,img)
         k=cv2.waitKey(10)
         os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/spooky_sound7.wav & ")
-        if not IsCanceled("/home/pi/Ghost-Catcher-Cam/temp_wifi_password.cfg"):
+        if not IsCanceled("/home/pi/Ghost-Catcher-Cam/config/temp_wifi_password.cfg"):
             # do the copying
             UpdateWiFi()
             
@@ -572,7 +572,7 @@ def MouseHandler(event, x, y, flags, param):
                 os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
             else:
                 os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/volumeup.wav &")
-            os.system("echo \"" + str(VOLUME) + "\" > /home/pi/Ghost-Catcher-Cam/volume.cfg &")
+            os.system("echo \"" + str(VOLUME) + "\" > /home/pi/Ghost-Catcher-Cam/config/volume.cfg &")
             os.system("amixer -q set Headphone " + str(VOLUME) + "%")                
             return
         elif (x>330 and x<400 and y>395 and y<453 and current_screen==SCREEN_MENU):
@@ -582,7 +582,7 @@ def MouseHandler(event, x, y, flags, param):
                 os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
             else:
                 os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/volumedown.wav &")
-            os.system("echo \"" + str(VOLUME) + "\" > /home/pi/Ghost-Catcher-Cam/volume.cfg &")
+            os.system("echo \"" + str(VOLUME) + "\" > /home/pi/Ghost-Catcher-Cam/config/volume.cfg &")
             os.system("amixer -q set Headphone " + str(VOLUME) + "%")
             return
         else:
@@ -594,7 +594,7 @@ def MouseHandler(event, x, y, flags, param):
 def GetVolume():
     # Retrieves last set volume
     global VOLUME
-    fd=open("/home/pi/Ghost-Catcher-Cam/volume.cfg","r")
+    fd=open("/home/pi/Ghost-Catcher-Cam/config/volume.cfg","r")
     VOLUME=int(fd.read())
     fd.close()
     
