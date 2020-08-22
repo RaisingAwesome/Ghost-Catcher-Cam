@@ -132,3 +132,9 @@ Sound troubleshooting:
       2. Type: amixer scontrols
       3. This will give you the name of the sound card.  Edit ghostcv2.py on the 3 lines that contain 
       amixer to ensure it is calling the sound card correctly.
+
+Redirecting Command Line Output:
+
+      When using os.system in Python, you typically want to hide all console messages by sending them to null.  Do so with the following:
+      
+      &>/dev/null
