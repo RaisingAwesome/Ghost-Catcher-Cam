@@ -157,11 +157,14 @@ def StreamIt():
                 
     # allow the camera to warmup
     time.sleep(0.1)
-    os.system("sudo chmod +777 /home/pi/Ghost-Catcher-Cam/stop")
-    os.system("sudo rm /home/pi/Ghost-Catcher-Cam/stop") #this will let us stop the stream
 
-    os.system("sudo touch /home/pi/Ghost-Catcher-Cam/stop") #by creating an empty file named stop.  Once it has a q in it, ffmpeg will get the q and then stop
-    os.system("sudo chmod +777 /home/pi/Ghost-Catcher-Cam/stop")
+    os.system("sudo rm Capture.log &>/dev/null") #this would grow forever if we don't delete it at the start of each session
+
+    os.system("sudo chmod +777 /home/pi/Ghost-Catcher-Cam/ramdisk/stop &>/dev/null")
+    os.system("sudo rm /home/pi/Ghost-Catcher-Cam/ramdisk/stop &>/dev/null") #this will let us stop the stream
+
+    os.system("sudo touch /home/pi/Ghost-Catcher-Cam/ramdisk/stop &>/dev/null") #by creating an empty file named stop.  Once it has a q in it, ffmpeg will get the q and then stop
+    os.system("sudo chmod +777 /home/pi/Ghost-Catcher-Cam/ramdisk/stop &>/dev/null")
     
     # Get the current Youtube stream key
     streamkeyfile=open("/home/pi/Ghost-Catcher-Cam/config/streamkey.cfg","r")
@@ -171,9 +174,9 @@ def StreamIt():
     streamkey=streamkey.rstrip()
     
     # Start streaming with ffmpeg
-    streamkey="</home/pi/Ghost-Catcher-Cam/stop /usr/bin/ffmpeg -f lavfi -i anullsrc -f x11grab -framerate 30 -video_size 720x480 -i :0.0 -f flv -s 854x480 -b:v 1M -framerate 30 rtmp://a.rtmp.youtube.com/live2/" + streamkey + " >/dev/null 2>>Capture.log &"
+    streamkey="</home/pi/Ghost-Catcher-Cam/ramdisk/stop /usr/bin/ffmpeg -f lavfi -i anullsrc -f x11grab -framerate 30 -video_size 720x480 -i :0.0 -f flv -s 854x480 -b:v 1024K -framerate 30 rtmp://a.rtmp.youtube.com/live2/" + streamkey + " >/dev/null 2>>Capture.log &"
     #alternate approach that didn't work...
-    #streamkey="</home/pi/Ghost-Catcher-Cam/stop /usr/bin/ffmpeg -f lavfi -i anullsrc -re -loop 1 -i /home/pi/Ghost-Catcher-Cam/ramdisk/pic.png -vcodec libx264 -pix_fmt yuv420p -f flv -s 854x480 -b:v 1M -framerate 30 rtmp://a.rtmp.youtube.com/live2/" + streamkey + " >/dev/null 2>>Capture.log &"
+    #streamkey="</home/pi/Ghost-Catcher-Cam/ramdisk/stop /usr/bin/ffmpeg -f lavfi -i anullsrc -re -loop 1 -i /home/pi/Ghost-Catcher-Cam/ramdisk/pic.png -vcodec libx264 -pix_fmt yuv420p -f flv -s 854x480 -b:v 1M -framerate 30 rtmp://a.rtmp.youtube.com/live2/" + streamkey + " >/dev/null 2>>Capture.log &"
     os.system(streamkey)
     
     HideMouse()
@@ -263,7 +266,7 @@ def StreamIt():
             t1.start()
             
         if current_screen==SCREEN_MENU:
-    	    os.system("echo 'q' >stop") #this simulates a keypress of the letter q which stops ffmpeg.  it's genius
+    	    os.system("echo 'q' >ramdisk/stop") #this simulates a keypress of the letter q which stops ffmpeg.  it's genius
     	    os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/shutdown.wav &")
     	    # above idea came from https://stackoverflow.com/questions/9722624/how-to-stop-ffmpeg-remotely
     	    img = cv2.imread('/home/pi/Ghost-Catcher-Cam/images/gui.png',1)
