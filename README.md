@@ -109,7 +109,7 @@ You first have to set permissions on the runner file:
 ### Extra Info:
 For info, to stream the entire Raspberry Pi display, this work:
 
-      ffmpeg -f lavfi -i anullsrc -f x11grab -framerate 30 -video_size 720x480 -i :0.0 -f flv -s 720x480 rtmp://a.rtmp.youtube.com/live2/streamkey
+      ffmpeg -f lavfi -i anullsrc -f x11grab -framerate 30 -video_size 720x480 -i :0.0 -f flv -b:v 1024K -framerate 30 -s 854x480 rtmp://a.rtmp.youtube.com/live2/streamkey
 
 This approach is used by the ghostcv2.py program.
 
