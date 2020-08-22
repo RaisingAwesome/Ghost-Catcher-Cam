@@ -135,6 +135,8 @@ Sound troubleshooting:
 
 Redirecting Command Line Output:
 
-      When using os.system in Python, you typically want to hide all console messages by sending them to null.  Do so with the following:
+      When using os.system in Python, you typically want to hide all console messages by sending them to null.  
+      
+      You can do so with the following at the end of the command line string:
       
       &>/dev/null
