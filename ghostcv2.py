@@ -171,7 +171,9 @@ def StreamIt():
     streamkey=streamkey.rstrip()
     
     # Start streaming with ffmpeg
-    streamkey="</home/pi/Ghost-Catcher-Cam/stop /usr/bin/ffmpeg -f lavfi -i anullsrc -f x11grab -framerate 30 -video_size 720x480 -i :0.0 -f flv -s 854x480 -b:v 1M rtmp://a.rtmp.youtube.com/live2/" + streamkey + " >/dev/null 2>>Capture.log &"
+    streamkey="</home/pi/Ghost-Catcher-Cam/stop /usr/bin/ffmpeg -f lavfi -i anullsrc -f x11grab -framerate 30 -video_size 720x480 -i :0.0 -f flv -s 854x480 -b:v 1M -framerate 30 rtmp://a.rtmp.youtube.com/live2/" + streamkey + " >/dev/null 2>>Capture.log &"
+    #alternate approach that didn't work...
+    #streamkey="</home/pi/Ghost-Catcher-Cam/stop /usr/bin/ffmpeg -f lavfi -i anullsrc -re -loop 1 -i /home/pi/Ghost-Catcher-Cam/ramdisk/pic.png -vcodec libx264 -pix_fmt yuv420p -f flv -s 854x480 -b:v 1M -framerate 30 rtmp://a.rtmp.youtube.com/live2/" + streamkey + " >/dev/null 2>>Capture.log &"
     os.system(streamkey)
     
     HideMouse()
