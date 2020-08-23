@@ -84,16 +84,17 @@ d.  Set your desktop background
 
 e.  Make a RAMDisk.  
 
-    Do this in the terminal:
+The ramdisk is used to pipe a file into ffmpeg named 'stop'.  If the file has the letter q in it, it simulates pressing q with ffmpeg running in the command prompt telling it to quit.  Very ingenius way of getting ffmpet to stop without killing the process the hard way.
+
+Do this in the terminal:
 
     mkdir /home/pi/Ghost-Catcher-Cam/ramdisk
     sudo nano /etc/fstab
 
-    Paste this at the bottom and save with CTRL x:
+Paste this at the bottom and save with CTRL x:
 
     myramdisk  /home/pi/Ghost-Catcher-Cam/ramdisk  tmpfs  defaults,size=64k,x-gvfs-show  0  0
 
-The ramdisk is used to pipe a file into ffmpeg named 'stop'.  If the file has the letter q in it, it simulates pressing q with ffmpeg running in the command prompt telling it to quit.  Very ingenius way of getting ffmpet to stop without killing the process the hard way.
     
 ### 6.  Accelerometer
 a.  The 3-axis magnetometer:  https://www.amazon.com/gp/product/B008V9S64E/ref=ppx_yo_dt_b_asin_title_o08_s00?ie=UTF8&psc=1
