@@ -120,14 +120,6 @@ This approach is used by the ghostcv2.py program.
 If you ever need a time you want to kill the backlight to save battery, you can do this:
 
       sudo sh -c 'echo "0" > /sys/class/backlight/soc\:backlight/brightness'    
-
-To eliminate the lightening bolt shown when the board is underpowered:
-
-      1. sudo nano /boot/config.txt
-      2. Add this text to the bottom of the file
-      
-           Disable under-voltage warning
-           avoid_warnings=1  
       
 Sound troubleshooting:
       After updating, you might run into an error that amixer is unable to find a simple control
