@@ -80,6 +80,18 @@ def DetectObject():
                     center = (x + w//2, y + h//2)
                     img = cv2.ellipse(img, center, (w//2, h//2), 0, 0, 360, (0, 0, 255), 4)
                 
+def DetectFaceAgain():
+    global object_cascade, img, object_cascade, START_FACE_DETECTED, MOTION_DETECTED
+
+    frame_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    frame_gray = cv2.equalizeHist(frame_gray)
+
+    faces = object_cascade.detectMultiScale(frame_gray)
+    if len(faces)>0:
+        for (x,y,w,h) in faces:
+            center = (x + w//2, y + h//2)
+            img = cv2.ellipse(img, center, (w//2, h//2), 0, 0, 360, (0, 0, 255), 4)
+
 def DetectMotion(gray):
     # Modified version of https://github.com/methylDragon/opencv-motion-detector/blob/master/Motion%20Detector.py
     global first_frame, motion_delay_counter, MOTION_DETECTED
@@ -121,6 +133,7 @@ def DetectMotion(gray):
                 # it will hunt for objects back in DetectObject
                 MOTION_DETECTED=True
                 motion_timer=threading.Timer(5,EndMotionDetected)
+                motion_timer.start()
         return
     
 def EndMotionDetected():
@@ -158,13 +171,13 @@ def StreamIt():
     # allow the camera to warmup
     time.sleep(0.1)
 
-    os.system("sudo rm Capture.log &>/dev/null") #this would grow forever if we don't delete it at the start of each session
+    os.system("sudo rm Capture.log >/dev/null") #this would grow forever if we don't delete it at the start of each session
 
-    os.system("sudo chmod +777 /home/pi/Ghost-Catcher-Cam/ramdisk/stop &>/dev/null")
-    os.system("sudo rm /home/pi/Ghost-Catcher-Cam/ramdisk/stop &>/dev/null") #this will let us stop the stream
+    os.system("sudo chmod +777 /home/pi/Ghost-Catcher-Cam/ramdisk/stop >/dev/null")
+    os.system("sudo rm /home/pi/Ghost-Catcher-Cam/ramdisk/stop >/dev/null") #this will let us stop the stream
 
-    os.system("sudo touch /home/pi/Ghost-Catcher-Cam/ramdisk/stop &>/dev/null") #by creating an empty file named stop.  Once it has a q in it, ffmpeg will get the q and then stop
-    os.system("sudo chmod +777 /home/pi/Ghost-Catcher-Cam/ramdisk/stop &>/dev/null")
+    os.system("sudo touch /home/pi/Ghost-Catcher-Cam/ramdisk/stop >/dev/null") #by creating an empty file named stop.  Once it has a q in it, ffmpeg will get the q and then stop
+    os.system("sudo chmod +777 /home/pi/Ghost-Catcher-Cam/ramdisk/stop >/dev/null")
     
     # Get the current Youtube stream key
     streamkeyfile=open("/home/pi/Ghost-Catcher-Cam/config/streamkey.cfg","r")
@@ -202,6 +215,7 @@ def StreamIt():
                     face_thread.start()
                     ACTIVITY_COUNT=ACTIVITY_COUNT + 1
             elif FACE_DETECTED:
+                DetectFaceAgain()
                 cv2.putText(img, 'Anomaly', (180, 454), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 4, cv2.LINE_AA)
             else:
                 cv2.putText(img, 'Sensing', (180, 454), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2, cv2.LINE_AA)
@@ -243,7 +257,7 @@ def StreamIt():
                     cv2.putText(img, str(time_left), (330, 310), cv2.FONT_HERSHEY_SIMPLEX, 4, (0, 0, 255), 6, cv2.LINE_AA)
                 else:
                     ALLOW_BEEP=False
-                    os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/403686__dbkeebler__sfx-shhhh.wav &")
+                    os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/shhhh.wav &")
                     DETECTION_COUNTDOWN=False
                     hud=cv2.imread('/home/pi/Ghost-Catcher-Cam/images/hud_scanning.png')
         img = cv2.addWeighted(img,1.0,hud,1.0,0)
