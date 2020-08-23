@@ -77,7 +77,11 @@ c.  Hide your Taskbar.  To do this, open a terminal and edit the LXDE-pi/autosta
       sudo nano /etc/xdg/lxsession/LXDE-pi/autostart
       
       #comment out the line with @lxpanel --profile LXDE
+d.  Set your desktop background
 
+      nano ~/.config/pcmanfm/LXDE-pi/desktop-items-0.conf
+      #set wallpaper=/home/pi/Ghost-Catcher-Cam/images/splash.png
+      
 ### 6.  Accelerometer
 a.  The 3-axis magnetometer:  https://www.amazon.com/gp/product/B008V9S64E/ref=ppx_yo_dt_b_asin_title_o08_s00?ie=UTF8&psc=1
 
