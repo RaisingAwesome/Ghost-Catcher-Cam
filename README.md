@@ -57,7 +57,7 @@ Install the package that allows you to move the mouse cursor.  This is needed to
 
       sudo apt-get install python3-opencv #takes a while, its bigger than 250M
            
-### 5.  Clone this Repository:
+### 5.  Clone this Repository and Setup the Environment:
 a.  From the terminal, paste the following:
 
       cd ~
@@ -81,7 +81,20 @@ d.  Set your desktop background
 
       nano ~/.config/pcmanfm/LXDE-pi/desktop-items-0.conf
       #set wallpaper=/home/pi/Ghost-Catcher-Cam/images/splash.png
-      
+
+e.  Make a RAMDisk.  
+
+    Do this in the terminal:
+
+    mkdir /home/pi/Ghost-Catcher-Cam/ramdisk
+    sudo nano /etc/fstab
+
+    Paste this at the bottom and save with CTRL x:
+
+    myramdisk  /home/pi/Ghost-Catcher-Cam/ramdisk  tmpfs  defaults,size=64k,x-gvfs-show  0  0
+
+    The ramdisk is used to pipe a file into ffmpeg named 'stop'.  If the file has the letter q in it, it simulates pressing q with ffmpeg running in the command prompt telling it to quit.  Very ingenius way of getting ffmpet to stop without killing the process the hard way.
+    
 ### 6.  Accelerometer
 a.  The 3-axis magnetometer:  https://www.amazon.com/gp/product/B008V9S64E/ref=ppx_yo_dt_b_asin_title_o08_s00?ie=UTF8&psc=1
 
@@ -135,4 +148,4 @@ Redirecting Command Line Output:
       
       You can do so with the following at the end of the command line string:
       
-      &>/dev/null
+      2>/dev/null
