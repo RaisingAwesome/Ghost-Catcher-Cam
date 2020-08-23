@@ -171,13 +171,13 @@ def StreamIt():
     # allow the camera to warmup
     time.sleep(0.1)
 
-    os.system("sudo rm Capture.log >/dev/null") #this would grow forever if we don't delete it at the start of each session
+    os.system("sudo rm Capture.log 2>/dev/null") #this would grow forever if we don't delete it at the start of each session
 
-    os.system("sudo chmod +777 /home/pi/Ghost-Catcher-Cam/ramdisk/stop >/dev/null")
-    os.system("sudo rm /home/pi/Ghost-Catcher-Cam/ramdisk/stop >/dev/null") #this will let us stop the stream
+    os.system("sudo chmod +777 /home/pi/Ghost-Catcher-Cam/ramdisk/stop 2>/dev/null")
+    os.system("sudo rm /home/pi/Ghost-Catcher-Cam/ramdisk/stop 2>/dev/null") #this will let us stop the stream
 
-    os.system("sudo touch /home/pi/Ghost-Catcher-Cam/ramdisk/stop >/dev/null") #by creating an empty file named stop.  Once it has a q in it, ffmpeg will get the q and then stop
-    os.system("sudo chmod +777 /home/pi/Ghost-Catcher-Cam/ramdisk/stop >/dev/null")
+    os.system("sudo touch /home/pi/Ghost-Catcher-Cam/ramdisk/stop 2>/dev/null") #by creating an empty file named stop.  Once it has a q in it, ffmpeg will get the q and then stop
+    os.system("sudo chmod +777 /home/pi/Ghost-Catcher-Cam/ramdisk/stop 2>/dev/null")
     
     # Get the current Youtube stream key
     streamkeyfile=open("/home/pi/Ghost-Catcher-Cam/config/streamkey.cfg","r")
