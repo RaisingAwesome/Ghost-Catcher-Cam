@@ -24,7 +24,7 @@ START_SCANNING=False
 SCANNING=False
 PEG_AUDIO=False
 START_PEG_AUDIO=False
-TOTAL_RADIO_FILES=2
+TOTAL_RADIO_FILES=10
 START_FACE_DETECTED=False
 FACE_DETECTED=False
 START_DETECTION_MODE=False
@@ -329,10 +329,10 @@ def PlayScanning():
     # determine if a sound will be played.
     os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/static.wav &")
 
-    # 1 in 13 chance to hear something spooky
+    # 1 in 13 chance to hear something spooky at a random time during the scanning
     dice=random.randrange(13)
     
-    # dice=12 # eliminate this after you know the rest of the audio strategy works
+    #dice=12 # eliminate this after you know the rest of the audio strategy works
     if (dice==12):
         delay=2 + random.randrange(10)
         t=threading.Timer(delay,PlayScannedAudio)
