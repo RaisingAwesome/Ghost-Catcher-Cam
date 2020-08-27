@@ -160,7 +160,6 @@ def StreamIt():
     
     current_screen=5
     hud=cv2.imread('/home/pi/Ghost-Catcher-Cam/images/hud.png')
-    hud2=hud
     os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/spooky_sound7.wav & ")
 
     img = cv2.imread('/home/pi/Ghost-Catcher-Cam/images/camera.png',1)
@@ -185,13 +184,13 @@ def StreamIt():
     streamkeyfile.close()
     # just in case there is some sloppy hand typing going on, we'll strip off any white space
     streamkey=streamkey.rstrip()
-    
+
     # Start streaming with ffmpeg
     streamkey="</home/pi/Ghost-Catcher-Cam/ramdisk/stop /usr/bin/ffmpeg -f lavfi -i anullsrc -f x11grab -framerate 30 -video_size 720x480 -i :0.0 -f flv -s 854x480 -b:v 1024K -framerate 30 rtmp://a.rtmp.youtube.com/live2/" + streamkey + " >/dev/null 2>>Capture.log &"
     #alternate approach that didn't work...
     #streamkey="</home/pi/Ghost-Catcher-Cam/ramdisk/stop /usr/bin/ffmpeg -f lavfi -i anullsrc -re -loop 1 -i /home/pi/Ghost-Catcher-Cam/ramdisk/pic.png -vcodec libx264 -pix_fmt yuv420p -f flv -s 854x480 -b:v 1M -framerate 30 rtmp://a.rtmp.youtube.com/live2/" + streamkey + " >/dev/null 2>>Capture.log &"
     os.system(streamkey)
-    
+
     HideMouse()
     os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/nightvision.wav & ")
 
@@ -200,13 +199,20 @@ def StreamIt():
     	# grab the raw NumPy array representing the image, then initialize the timestamp
     	# and occupied/unoccupied text
         img = frame.array
+        if not SCANNING and not DETECTION_MODE:
+            cv2.rectangle(img,(320,410),(412,470),(0,0,0),-1)
+            cv2.rectangle(img,(430,410),(563,470),(0,0,0),-1)
+
+        img = cv2.addWeighted(img,1.0,hud,1.0,0)
+        cv2.rectangle(img,(644,417),(692,433),(0,255,0),-1)
+        cv2.rectangle(img,(644,437),(692,453),(0,255,0),-1)
 
         if DETECTION_MODE:
             if not FACE_DETECTED:
                 # If we saw a face in the last 15 seconds, don't speed up the frame rate
                 # by bypassing DetectObject()
                 DetectObject()
-            
+
             if START_FACE_DETECTED:
                 START_FACE_DETECTED=False
                 if not FACE_DETECTED:
@@ -221,10 +227,6 @@ def StreamIt():
                 cv2.putText(img, 'Sensing', (180, 454), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2, cv2.LINE_AA)
         else:
             cv2.putText(img, 'Normal', (180, 454), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
-            if not SCANNING:
-                cv2.rectangle(img,(320,410),(412,470),(0,0,0),-1)
-                cv2.rectangle(img,(430,410),(563,470),(0,0,0),-1)
-                hud=hud2 #probably uses too many resources.  Better to use a flag field here.
 
         cv2.putText(img, str(ACTIVITY_COUNT), (635, 53), cv2.FONT_HERSHEY_SIMPLEX, .9, (0, 0, 0), 4, cv2.LINE_AA)
         cv2.putText(img, str(ACTIVITY_COUNT), (635, 53), cv2.FONT_HERSHEY_SIMPLEX, .9, (255, 255, 255), 2, cv2.LINE_AA)
@@ -248,7 +250,7 @@ def StreamIt():
         elif DETECTION_MODE:
             if DETECTION_COUNTDOWN:
                 time_left=10-seconds_between(start_time,time.time())
-                 
+
                 cv2.putText(img, "Stay Out of View!", (110, 150), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 8, cv2.LINE_AA)
                 cv2.putText(img, "Stay Out of View!", (110, 150), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 3, cv2.LINE_AA)
                 if time_left>9:
@@ -260,7 +262,6 @@ def StreamIt():
                     os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/shhhh.wav &")
                     DETECTION_COUNTDOWN=False
                     hud=cv2.imread('/home/pi/Ghost-Catcher-Cam/images/hud_scanning.png')
-        img = cv2.addWeighted(img,1.0,hud,1.0,0)
         cv2.imshow(WINDOW_NAME, img)
         key = cv2.waitKey(1)
 
@@ -273,12 +274,12 @@ def StreamIt():
             DETECTION_MODE=False
             hud=cv2.imread('/home/pi/Ghost-Catcher-Cam/images/hud_scanning.png')
             SCANNING=True
-            start_time=time.time()         
+            start_time=time.time()
             t=threading.Timer(14.0,StopScanning)
             t.start()
             t1=threading.Timer(.5,PlayScanning)
             t1.start()
-            
+
         if current_screen==SCREEN_MENU:
     	    os.system("echo 'q' >ramdisk/stop") #this simulates a keypress of the letter q which stops ffmpeg.  it's genius
     	    os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/shutdown.wav &")
