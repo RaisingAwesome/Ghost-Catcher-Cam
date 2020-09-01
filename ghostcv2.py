@@ -40,7 +40,8 @@ MOTION_DETECTED=False
 first_frame = None
 hud="/home/pi/Ghost-Catcher-Cam/images/hud.png"
 ALLOW_BEEP=False
-
+WIFI_CONNECTED=False
+USB_CONNECTED=False
 
 def HideMouse():
     # Click the mouse out of the view.  for some reason, even though I hide it in the operating system, it shows when streaming.
@@ -185,8 +186,11 @@ def StreamIt():
     # just in case there is some sloppy hand typing going on, we'll strip off any white space
     streamkey=streamkey.rstrip()
 
-    # Start streaming with ffmpeg
-    streamkey="</home/pi/Ghost-Catcher-Cam/ramdisk/stop /usr/bin/ffmpeg -f lavfi -i anullsrc -f x11grab -framerate 30 -video_size 720x480 -i :0.0 -f flv -s 854x480 -b:v 1024K -framerate 30 rtmp://a.rtmp.youtube.com/live2/" + streamkey + " >/dev/null 2>>Capture.log &"
+    # Start streaming to YouTube with ffmpeg
+    #streamkey="</home/pi/Ghost-Catcher-Cam/ramdisk/stop /usr/bin/ffmpeg -f lavfi -i anullsrc -f x11grab -framerate 30 -video_size 720x480 -i :0.0 -f flv -s 854x480 -b:v 1024K -framerate 30 rtmp://a.rtmp.youtube.com/live2/" + streamkey + " >/dev/null 2>>Capture.log &"
+    
+    streamkey="</home/pi/Ghost-Catcher-Cam/ramdisk/stop /usr/bin/ffmpeg -f lavfi -i anullsrc -f x11grab -framerate 30 -video_size 720x480 -i :0.0 -f flv -s 720x480 -b:v 1024K -framerate 30 /home/pi/usbdrv/test.avi >/dev/null 2>>Capture.log &"
+    
     #alternate approach that didn't work...
     #streamkey="</home/pi/Ghost-Catcher-Cam/ramdisk/stop /usr/bin/ffmpeg -f lavfi -i anullsrc -re -loop 1 -i /home/pi/Ghost-Catcher-Cam/ramdisk/pic.png -vcodec libx264 -pix_fmt yuv420p -f flv -s 854x480 -b:v 1M -framerate 30 rtmp://a.rtmp.youtube.com/live2/" + streamkey + " >/dev/null 2>>Capture.log &"
     os.system(streamkey)
@@ -284,9 +288,8 @@ def StreamIt():
     	    os.system("echo 'q' >ramdisk/stop") #this simulates a keypress of the letter q which stops ffmpeg.  it's genius
     	    os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/shutdown.wav &")
     	    # above idea came from https://stackoverflow.com/questions/9722624/how-to-stop-ffmpeg-remotely
-    	    img = cv2.imread('/home/pi/Ghost-Catcher-Cam/images/gui.png',1)
     	    key = cv2.waitKey(1)
-    	    cv2.imshow(WINDOW_NAME, img)
+    	    showGUI()
     	    STREAMING=False
     	    break
 
@@ -372,9 +375,7 @@ def ConfigYouTube():
         my_result=os.system("DISPLAY=:0.0 zenity --title='WiFi Config' --info='Stream Set, Good Job.' --width=680 --height=480")
     else:
         os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
-    img = cv2.imread('/home/pi/Ghost-Catcher-Cam/images/gui.png',1)
-    cv2.imshow(WINDOW_NAME,img)
-
+    showGUI()
 def UpdateWiFi():
     # Used to prompt for the wifi credentials
     
@@ -435,8 +436,7 @@ def ConfigWiFi():
             os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
     else:
         os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
-    img = cv2.imread('/home/pi/Ghost-Catcher-Cam/images/gui.png',1)
-    cv2.imshow(WINDOW_NAME,img)
+    showGUI()
     k=cv2.waitKey(1)
 
 def StartDetectionMode():
@@ -462,7 +462,24 @@ def BeepEverySecond():
         os.system("(aplay -q /home/pi/Ghost-Catcher-Cam/sounds/202193__thomasevd__10-second-countdown.wav) &")
         time.sleep(1)
 
-    
+def showGUI():
+    img = cv2.imread('/home/pi/Ghost-Catcher-Cam/images/gui.png',1)
+    if WIFI_CONNECTED and not USB_CONNECTED:
+        cv2.putText(img, "WiFi", (330, 158), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 3, cv2.LINE_AA)
+        cv2.putText(img, "WiFi", (330, 158), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+        cv2.putText(img, "Enabled", (300, 187), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 3, cv2.LINE_AA)
+        cv2.putText(img, "Enabled", (300, 187), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+    elif not WIFI_CONNECTED and not USB_CONNECTED:
+        cv2.putText(img, "No WiFi!", (300, 158), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 7, cv2.LINE_AA)
+        cv2.putText(img, "No WiFi!", (300, 158), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0, 255), 2, cv2.LINE_AA)
+    if USB_CONNECTED:
+        cv2.putText(img, "USING USB", (270, 190), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 3, cv2.LINE_AA)
+        cv2.putText(img, "USING USB", (270, 190), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+    elif not WIFI_CONNECTED:
+        cv2.putText(img, "No USB!", (298, 190), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 7, cv2.LINE_AA)
+        cv2.putText(img, "No USB!", (298, 190), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
+    cv2.imshow(WINDOW_NAME,img)
+
 def MouseHandler(event, x, y, flags, param):
     # Handle Screen Taps based on what screen is showing
     # and what routines where running
@@ -476,7 +493,7 @@ def MouseHandler(event, x, y, flags, param):
             os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/bink.wav &")
         else:
             os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
-        return    
+        return
     elif event==cv2.EVENT_LBUTTONUP:
         # First check if we are streaming.  I fos, send the flag to abort
         
@@ -573,8 +590,7 @@ def MouseHandler(event, x, y, flags, param):
                 return
             elif current_screen==1 or current_screen==2 or current_screen==3 or current_screen==4: 
                 # Handle No
-                img = cv2.imread('/home/pi/Ghost-Catcher-Cam/images/gui.png',1)
-                cv2.imshow(WINDOW_NAME,img)
+                showGUI()
                 current_screen=SCREEN_MENU
                 return
             else:
@@ -619,7 +635,6 @@ def GetVolume():
 # Main
 user_tapped_exit=False
 current_screen=SCREEN_MENU
-img = cv2.imread('/home/pi/Ghost-Catcher-Cam/images/gui.png',1)
 
 # Seed a random object with the current time
 random.seed()
@@ -632,7 +647,7 @@ os.system("sudo sh -c 'echo \"1\" > /sys/class/backlight/soc\:backlight/brightne
 cv2.namedWindow(WINDOW_NAME,0)
 cv2.setWindowProperty(WINDOW_NAME, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN);
 cv2.setWindowProperty(WINDOW_NAME, cv2.WND_PROP_AUTOSIZE, cv2.WINDOW_AUTOSIZE);
-cv2.imshow(WINDOW_NAME,img)
+showGUI()
 cv2.setMouseCallback(WINDOW_NAME, MouseHandler)
 
 # Play the startup sound
