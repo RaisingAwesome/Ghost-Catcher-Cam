@@ -114,7 +114,8 @@ c.  Clone the accelerometer repo:
 You first have to set permissions on the runner file:
 
       cd ~/Ghost-Catcher-Cam
-      chmod +777 runner.sh
+      chmod +777 runner.sh #this is the main runner of the python script
+      chmod +777 checker.sh #this will ensure it boots successfully and will reboot if not
       
 +Then, set a Crontab entry so it runs at startup:
 
@@ -122,9 +123,9 @@ You first have to set permissions on the runner file:
 
 +Type the following at the bottom of the page:
 
-      @reboot sleep 0 && /home/pi/Ghost-Catcher-Cam/runner.sh &  #increase the sleep zero if it doesn't run to give it time to boot up more dependancies.  The sleep parameter is in seconds.
-      
-### Extra Info:
+      @reboot sleep 10 && /home/pi/Ghost-Catcher-Cam/runner.sh &  #increase the sleep zero if it doesn't run to give it time to boot up more dependancies.  The sleep parameter is in seconds.
+      @reboot sleep 30 && /home/pi/Ghost-Catcher-Cam/checker.sh & #this will reboot if python isn't running after 30 seconds.
+
 For info, to stream the entire Raspberry Pi display, this work:
 
       ffmpeg -f lavfi -i anullsrc -f x11grab -framerate 30 -video_size 720x480 -i :0.0 -f flv -b:v 1024K -framerate 30 -s 854x480 rtmp://a.rtmp.youtube.com/live2/streamkey
