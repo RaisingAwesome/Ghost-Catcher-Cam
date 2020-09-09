@@ -6,6 +6,8 @@ from picamera import PiCamera
 import time
 import random
 import threading
+import datetime
+import socket
 
 # Setup the Touchscreen
 os.putenv('SDL_VIDEODRIVER','fbcon')
@@ -41,7 +43,7 @@ first_frame = None
 hud="/home/pi/Ghost-Catcher-Cam/images/hud.png"
 ALLOW_BEEP=False
 WIFI_CONNECTED=False
-USB_CONNECTED=False
+USB_CONNECTED=True
 
 def HideMouse():
     # Click the mouse out of the view.  for some reason, even though I hide it in the operating system, it shows when streaming.
@@ -187,12 +189,12 @@ def StreamIt():
     streamkey=streamkey.rstrip()
 
     # Start streaming to YouTube with ffmpeg
-    #streamkey="</home/pi/Ghost-Catcher-Cam/ramdisk/stop /usr/bin/ffmpeg -f lavfi -i anullsrc -f x11grab -framerate 30 -video_size 720x480 -i :0.0 -f flv -s 854x480 -b:v 1024K -framerate 30 rtmp://a.rtmp.youtube.com/live2/" + streamkey + " >/dev/null 2>>Capture.log &"
-    
-    streamkey="</home/pi/Ghost-Catcher-Cam/ramdisk/stop /usr/bin/ffmpeg -f lavfi -i anullsrc -f x11grab -framerate 30 -video_size 720x480 -i :0.0 -f flv -s 720x480 -b:v 1024K -framerate 30 /home/pi/usbdrv/test.avi >/dev/null 2>>Capture.log &"
-    
-    #alternate approach that didn't work...
-    #streamkey="</home/pi/Ghost-Catcher-Cam/ramdisk/stop /usr/bin/ffmpeg -f lavfi -i anullsrc -re -loop 1 -i /home/pi/Ghost-Catcher-Cam/ramdisk/pic.png -vcodec libx264 -pix_fmt yuv420p -f flv -s 854x480 -b:v 1M -framerate 30 rtmp://a.rtmp.youtube.com/live2/" + streamkey + " >/dev/null 2>>Capture.log &"
+    if (not USB_CONNECTED):
+         streamkey="</home/pi/Ghost-Catcher-Cam/ramdisk/stop /usr/bin/ffmpeg -v quiet -f lavfi -i anullsrc -f x11grab -framerate 30 -video_size 720x480 -i :0.0 -f flv -s 854x480 -b:v 1024K -framerate 30 rtmp://a.rtmp.youtube.com/live2/" + streamkey + " &"
+    else:
+         now = datetime.datetime.now()
+         the_filename = "video-" + str(now.hour) + "-" + str(now.minute) + ".avi"
+         streamkey="</home/pi/Ghost-Catcher-Cam/ramdisk/stop /usr/bin/ffmpeg -v quiet -f lavfi -i anullsrc -f x11grab -framerate 30 -video_size 720x480 -i :0.0 -f flv -b:v 1M /home/pi/usbdrv/" + the_filename + " &"
     os.system(streamkey)
 
     HideMouse()
@@ -285,13 +287,16 @@ def StreamIt():
             t1.start()
 
         if current_screen==SCREEN_MENU:
-    	    os.system("echo 'q' >ramdisk/stop") #this simulates a keypress of the letter q which stops ffmpeg.  it's genius
-    	    os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/shutdown.wav &")
-    	    # above idea came from https://stackoverflow.com/questions/9722624/how-to-stop-ffmpeg-remotely
-    	    key = cv2.waitKey(1)
-    	    showGUI()
-    	    STREAMING=False
-    	    break
+            os.system("echo 'q' >ramdisk/stop") #this simulates a keypress of the letter q which stops ffmpeg.  it's genius
+            os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/shutdown.wav &")
+            # above idea came from https://stackoverflow.com/questions/9722624/how-to-stop-ffmpeg-remotely
+ 
+            if (USB_CONNECTED):
+                 os.system("(ffmpeg -i /home/pi/usbdrv/" + the_filename + " /home/pi/usbdrv/tp_" + the_filename + " && rm /home/pi/usbdrv/" + the_filename + ") &")
+            key = cv2.waitKey(1)
+            showGUI()
+            STREAMING=False
+            break
 
 def UpdateAudioGraphic():
     # This simulates audio meter
@@ -677,6 +682,11 @@ if not object_cascade.load('/home/pi/Ghost-Catcher-Cam/opencv/haarcascade_fronta
     print('--(!)Error loading object cascade')
     exit(0)
 
+if (socket.gethostbyname(socket.gethostname())=="192.168.1.176"):
+    WIFI_CONNECTED=True
+else:
+    WIFI_CONNECTED=False
+
 # Loop forever until a keyboard key is hit or they close it through the GUI
 while not user_tapped_exit:
     k = cv2.waitKey(10)
@@ -686,7 +696,7 @@ while not user_tapped_exit:
         STREAMING=True
         START_STREAM=False
         StreamIt()
-        
+
 # Cleanup and exit
 cv2.destroyAllWindows()
 exit()
