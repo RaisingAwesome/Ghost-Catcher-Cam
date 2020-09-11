@@ -193,7 +193,7 @@ def StreamIt():
          streamkey="</home/pi/Ghost-Catcher-Cam/ramdisk/stop /usr/bin/ffmpeg -v quiet -f lavfi -i anullsrc -f x11grab -framerate 30 -video_size 720x480 -i :0.0 -f flv -s 854x480 -b:v 1024K -framerate 30 rtmp://a.rtmp.youtube.com/live2/" + streamkey + " &"
     else:
          now = datetime.datetime.now()
-         the_filename = "video-" + str(now.hour) + "-" + str(now.minute) + ".avi"
+         the_filename = "video-" + str(now.hour) + "-" + str(now.minute) + ".mkv"
          streamkey="</home/pi/Ghost-Catcher-Cam/ramdisk/stop /usr/bin/ffmpeg -v quiet -f lavfi -i anullsrc -f x11grab -framerate 30 -video_size 720x480 -i :0.0 -f flv -b:v 1M /home/pi/usbdrv/" + the_filename + " &"
     os.system(streamkey)
 
@@ -291,8 +291,6 @@ def StreamIt():
             os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/shutdown.wav &")
             # above idea came from https://stackoverflow.com/questions/9722624/how-to-stop-ffmpeg-remotely
  
-            if (USB_CONNECTED):
-                 os.system("(ffmpeg -i /home/pi/usbdrv/" + the_filename + " /home/pi/usbdrv/tp_" + the_filename + " && rm /home/pi/usbdrv/" + the_filename + ") &")
             key = cv2.waitKey(1)
             showGUI()
             STREAMING=False
@@ -530,8 +528,15 @@ def MouseHandler(event, x, y, flags, param):
             # Handle the Go live tap
             current_screen=4
             img = cv2.imread('/home/pi/Ghost-Catcher-Cam/images/confirm.png',1)
-            img = cv2.putText(img, 'Start Streaming!?', (67, 195), cv2.FONT_HERSHEY_SIMPLEX, 2.25, (0, 0, 0), 7, cv2.LINE_AA)
-            img = cv2.putText(img, 'Start Streaming!?', (67, 195), cv2.FONT_HERSHEY_SIMPLEX, 2.25, (255, 255, 255), 4, cv2.LINE_AA)
+            if USB_CONNECTED:
+                img = cv2.putText(img, 'Start Recording!?', (67, 195), cv2.FONT_HERSHEY_SIMPLEX, 2.25, (0, 0, 0), 7, cv2.LINE_AA)
+                img = cv2.putText(img, 'Start Recording!?', (67, 195), cv2.FONT_HERSHEY_SIMPLEX, 2.25, (255, 255, 255), 4, cv2.LINE_AA)
+            elif WIFI_CONNECTED:
+                img = cv2.putText(img, 'Start Streaming!?', (67, 195), cv2.FONT_HERSHEY_SIMPLEX, 2.25, (0, 0, 0), 7, cv2.LINE_AA)
+                img = cv2.putText(img, 'Start Streaming!?', (67, 195), cv2.FONT_HERSHEY_SIMPLEX, 2.25, (255, 255, 255), 4, cv2.LINE_AA)
+            else:
+                img = cv2.putText(img, 'View Only-No WiFi', (67, 195), cv2.FONT_HERSHEY_SIMPLEX, 2.25, (0, 0, 0), 7, cv2.LINE_AA)
+                img = cv2.putText(img, 'View Only-No WiFi', (67, 195), cv2.FONT_HERSHEY_SIMPLEX, 2.25, (255, 255, 255), 4, cv2.LINE_AA)
             cv2.imshow(WINDOW_NAME,img)
         elif (x>465 and x<627 and y>90 and y<217):
             if current_screen==SCREEN_MENU: 
@@ -603,7 +608,7 @@ def MouseHandler(event, x, y, flags, param):
                 os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
                 cv2.imshow(WINDOW_NAME,img)
                 return
-        elif (x>330 and x<400 and y>283 and y<329 and current_screen==SCREEN_MENU):
+        elif (x>330 and x<400 and y>273 and y<359 and current_screen==SCREEN_MENU):
             # Handle volume Up
             VOLUME=VOLUME+3
             if (VOLUME>100):
