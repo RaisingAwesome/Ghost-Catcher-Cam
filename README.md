@@ -95,7 +95,14 @@ Paste this at the bottom and save with CTRL x:
 
     myramdisk  /home/pi/Ghost-Catcher-Cam/ramdisk  tmpfs  defaults,size=64k,x-gvfs-show  0  0
 
-    
+f.  Set up for USB Storage
+
+First, make a directory:  mkdir /home/pi/usbdrv
+
+then do sudo /etc/fstab and add the following line:
+
+     UUID=6D80-1752 /home/pi/usbdrv vfat defaults,auto,users,rw,nofail,umask=000 0 0
+     
 ### 6.  Accelerometer
 a.  The 3-axis magnetometer:  https://www.amazon.com/gp/product/B008V9S64E/ref=ppx_yo_dt_b_asin_title_o08_s00?ie=UTF8&psc=1
 
