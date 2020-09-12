@@ -45,6 +45,7 @@ hud="/home/pi/Ghost-Catcher-Cam/images/hud.png"
 ALLOW_BEEP=False
 WIFI_CONNECTED=False
 USB_CONNECTED=True
+RECORDING=True
 
 def HideMouse():
     # Click the mouse out of the view.  for some reason, even though I hide it in the operating system, it shows when streaming.
@@ -167,10 +168,10 @@ def StreamIt():
     os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/spooky_sound7.wav & ")
 
     img = cv2.imread('/home/pi/Ghost-Catcher-Cam/images/camera.png',1)
-    
+
     cv2.imshow(WINDOW_NAME,img)
     k=cv2.waitKey(700)
-                
+
     # allow the camera to warmup
     time.sleep(0.1)
 
@@ -181,7 +182,7 @@ def StreamIt():
 
     os.system("sudo touch /home/pi/Ghost-Catcher-Cam/ramdisk/stop 2>/dev/null") #by creating an empty file named stop.  Once it has a q in it, ffmpeg will get the q and then stop
     os.system("sudo chmod +777 /home/pi/Ghost-Catcher-Cam/ramdisk/stop 2>/dev/null")
-    
+
     # Get the current Youtube stream key
     streamkeyfile=open("/home/pi/Ghost-Catcher-Cam/config/streamkey.cfg","r")
     streamkey=streamkeyfile.read()
@@ -191,12 +192,12 @@ def StreamIt():
 
     # Start streaming to YouTube with ffmpeg
     the_filename=""
-    if (not USB_CONNECTED):
+    if (not RECORDING):
          streamkey="</home/pi/Ghost-Catcher-Cam/ramdisk/stop /usr/bin/ffmpeg -v quiet -f lavfi -i anullsrc -f x11grab -framerate 30 -video_size 720x480 -i :0.0 -f flv -s 854x480 -b:v 1024K -framerate 30 rtmp://a.rtmp.youtube.com/live2/" + streamkey + " &"
     else:
          now = datetime.datetime.now()
-         the_filename = "video-" + str(now.hour) + "-" + str(now.minute) + ".mkv"
-         streamkey="</home/pi/Ghost-Catcher-Cam/ramdisk/stop /usr/bin/ffmpeg -v quiet -f lavfi -i anullsrc -f x11grab -framerate 30 -video_size 720x480 -i :0.0 -f flv -b:v 1M /home/pi/usbdrv/" + the_filename + " &"
+         the_filename = "video-" + str(now.hour) + "-" + str(now.minute) + ".wmv"
+         streamkey="</home/pi/Ghost-Catcher-Cam/ramdisk/stop /usr/bin/ffmpeg -v quiet -f lavfi -i anullsrc -f x11grab -framerate 30 -video_size 720x480 -i :0.0 -b:v 1M /home/pi/usbdrv/" + the_filename + " &"
     os.system(streamkey)
 
     HideMouse()
@@ -249,7 +250,7 @@ def StreamIt():
         if SCANNING:
             cv2.putText(img, "scanning", (230, 150), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 6, cv2.LINE_AA)
             UpdateAudioGraphic()
-            
+
             time_left=13-seconds_between(start_time,time.time())
             if time_left>9:
                 cv2.putText(img, str(time_left), (270, 310), cv2.FONT_HERSHEY_SIMPLEX, 4, (0, 0, 255), 6, cv2.LINE_AA)
@@ -292,31 +293,12 @@ def StreamIt():
             os.system("echo 'q' >ramdisk/stop") #this simulates a keypress of the letter q which stops ffmpeg.  it's genius
             os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/shutdown.wav &")
             # above idea came from https://stackoverflow.com/questions/9722624/how-to-stop-ffmpeg-remotely
-            if (USB_CONNECTED):
-                 os.system("(ffmpeg -y -v quiet -i /home/pi/usbdrv/" + the_filename + " /home/pi/usbdrv/tp_" + the_filename + " && rm /home/pi/usbdrv/" + the_filename + ") &")
-                 ii=0
-                 im1=cv2.imread('/home/pi/Ghost-Catcher-Cam/images/saving.png')
-                 im2=cv2.imread('/home/pi/Ghost-Catcher-Cam/images/saving1.png')
-                 while checkIfProcessRunning('ffmpeg'):
-                      if ii==0:
-                           cv2.imshow(WINDOW_NAME, im1)
-                           key=cv2.waitKey(1)
-                      elif ii==1:
-                           cv2.imshow(WINDOW_NAME, im2)
-                           key=cv2.waitKey(1)
-                      else:
-                            ii=-1
-                      time.sleep(1)
-                      ii=ii+1
-            os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/done.wav &")
-            key = cv2.waitKey(1)
             showGUI()
             STREAMING=False
             break
+
 def checkIfProcessRunning(processName):
-    '''
-    Check if there is any running process that contains the given name processName.
-    '''
+    #Check if there is any running process that contains the given name processName.
     #Iterate over the all the running process
     for proc in psutil.process_iter():
         try:
@@ -356,7 +338,7 @@ def EndPeakAudio():
     # thread to stop the pegging.
     global PEG_AUDIO
     PEG_AUDIO=False
-    
+
 def seconds_between(d1, d2):
     # Just a quick way to determine # of seconds between
     # two times.
@@ -369,13 +351,13 @@ def PlayScanning():
 
     # 1 in 13 chance to hear something spooky at a random time during the scanning
     dice=random.randrange(13)
-    
+
     #dice=12 # eliminate this after you know the rest of the audio strategy works
     if (dice==12):
         delay=2 + random.randrange(10)
         t=threading.Timer(delay,PlayScannedAudio)
         t.start()
-    
+
 def PlayScannedAudio():
     # Called randomly to play a random file
     global START_PEG_AUDIO, ACTIVITY_COUNT
@@ -383,14 +365,14 @@ def PlayScannedAudio():
     num=random.randrange(TOTAL_RADIO_FILES)
     os.system("(aplay -q /home/pi/Ghost-Catcher-Cam/sounds/radio/" + str(num) + ".wav) & ")
     ACTIVITY_COUNT=ACTIVITY_COUNT+1
-    
+
 def StopScanning():
     # Used by a timer thread to end the 13 second audio
     # scan routine
     global SCANNING, hud
     SCANNING=False
     hud=cv2.imread('/home/pi/Ghost-Catcher-Cam/images/hud.png')
-    
+
 def ConfigYouTube():
     # Routine to prompt for the Youtube Streamkey
     global img, WINDOW_NAME
@@ -398,21 +380,21 @@ def ConfigYouTube():
     img = cv2.imread('/home/pi/Ghost-Catcher-Cam/images/confirm2.png',1)
     cv2.imshow(WINDOW_NAME,img)
     k=cv2.waitKey(1)
-    
+
     my_result=os.system("echo $(DISPLAY=:0.0 zenity --title='WiFi Config' --text='Attach Keyboard and Enter YouTube Stream Key:' --entry --width=680 --height=480 --ok-label='SET') >/home/pi/Ghost-Catcher-Cam/config/temp_streamkey.cfg")
     if not IsCanceled("/home/pi/Ghost-Catcher-Cam/config/temp_streamkey.cfg"):
         cv2.imshow(WINDOW_NAME,img)
         k=cv2.waitKey(10)
         # do the copying
         os.system("cp /home/pi/Ghost-Catcher-Cam/config/temp_streamkey.cfg /home/pi/Ghost-Catcher-Cam/config/streamkey.cfg")
-        
+
         my_result=os.system("DISPLAY=:0.0 zenity --title='WiFi Config' --info='Stream Set, Good Job.' --width=680 --height=480")
     else:
         os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
     showGUI()
 def UpdateWiFi():
     # Used to prompt for the wifi credentials
-    
+
     the_file=open("/home/pi/Ghost-Catcher-Cam/config/temp_wifi_ssid.cfg","r")
     ssid=the_file.read()
     ssid=ssid.rstrip()
@@ -424,7 +406,7 @@ def UpdateWiFi():
 
     os.system("echo \"ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev\\nupdate_config=1\\ncountry=US\\n\\nnetwork={\\nssid=\\\"" + ssid + "\\\"\\npsk=\\\"" + pwd + "\\\"\\nkey_mgmt=WPA-PSK\\n}\" > /home/pi/Ghost-Catcher-Cam/config/tempwifi.cfg")
     os.system("sudo cp /home/pi/Ghost-Catcher-Cam/config/tempwifi.cfg /etc/wpa_supplicant/wpa_supplicant.conf")
-    
+
 def IsCanceled(the_file):
     # Used to check the input from the Zenity Dialogs to see
     # if the user canceled when configuring the Youtube
@@ -439,18 +421,15 @@ def IsCanceled(the_file):
 
 def ConfigWiFi():
     # Routine to allow typing in custom WiFi Credentials
-    
     global img, WINDOW_NAME
     os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/spooky_sound7.wav & ")
     img = cv2.imread('/home/pi/Ghost-Catcher-Cam/images/confirm2.png',1)
     cv2.imshow(WINDOW_NAME,img)
     k=cv2.waitKey(1)
-    
     my_result=os.system("echo $(DISPLAY=:0.0 zenity --title='WiFi Config' --text='Attach Keyboard and Enter SSID:' --entry --width=680 --height=480 --ok-label='SET') >/home/pi/Ghost-Catcher-Cam/config/temp_wifi_ssid.cfg")
     if not IsCanceled("/home/pi/Ghost-Catcher-Cam/config/temp_wifi_ssid.cfg"):
         cv2.imshow(WINDOW_NAME,img)
         k=cv2.waitKey(10)
-        
         my_result=os.system("echo $(DISPLAY=:0.0 zenity --title='WiFi Config' --text='Enter Password:' --entry --width=680 --height=480 --ok-label='SET') >/home/pi/Ghost-Catcher-Cam/config/temp_wifi_password.cfg")    
         cv2.imshow(WINDOW_NAME,img)
         k=cv2.waitKey(10)
@@ -458,7 +437,6 @@ def ConfigWiFi():
         if not IsCanceled("/home/pi/Ghost-Catcher-Cam/config/temp_wifi_password.cfg"):
             # do the copying
             UpdateWiFi()
-            
             my_result=os.system("DISPLAY=:0.0 zenity --title='WiFi Config' --info='WiFi Reset!  Tap to Reboot' --width=680 --height=480")
             img = cv2.imread('/home/pi/Ghost-Catcher-Cam/images/rebooting.png',1)
             cv2.imshow(WINDOW_NAME,img)
@@ -497,21 +475,14 @@ def BeepEverySecond():
         time.sleep(1)
 
 def showGUI():
+    checkForWiFi()
     img = cv2.imread('/home/pi/Ghost-Catcher-Cam/images/gui.png',1)
-    if WIFI_CONNECTED and not USB_CONNECTED:
-        cv2.putText(img, "WiFi", (330, 158), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 3, cv2.LINE_AA)
-        cv2.putText(img, "WiFi", (330, 158), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 100, 0), 2, cv2.LINE_AA)
-        cv2.putText(img, "Enabled", (300, 187), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 3, cv2.LINE_AA)
-        cv2.putText(img, "Enabled", (300, 187), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 100, 0), 2, cv2.LINE_AA)
-    elif not WIFI_CONNECTED and not USB_CONNECTED:
-        cv2.putText(img, "No WiFi!", (300, 158), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 7, cv2.LINE_AA)
-        cv2.putText(img, "No WiFi!", (300, 158), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0, 255), 2, cv2.LINE_AA)
-    if USB_CONNECTED:
-        cv2.putText(img, "USING USB", (270, 190), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 3, cv2.LINE_AA)
-        cv2.putText(img, "USING USB", (270, 190), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 100, 0), 2, cv2.LINE_AA)
-    elif not WIFI_CONNECTED:
-        cv2.putText(img, "No USB!", (298, 190), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 7, cv2.LINE_AA)
-        cv2.putText(img, "No USB!", (298, 190), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
+    if not WIFI_CONNECTED:
+        cv2.putText(img, "No WiFi!", (110, 250), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 7, cv2.LINE_AA)
+        cv2.putText(img, "No WiFi!", (110, 250), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0, 255), 2, cv2.LINE_AA)
+    if not USB_CONNECTED:
+        cv2.putText(img, "No USB!", (290, 250), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 7, cv2.LINE_AA)
+        cv2.putText(img, "No USB!", (290, 250), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
     cv2.imshow(WINDOW_NAME,img)
 
 def MouseHandler(event, x, y, flags, param):
@@ -529,8 +500,7 @@ def MouseHandler(event, x, y, flags, param):
             os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
         return
     elif event==cv2.EVENT_LBUTTONUP:
-        # First check if we are streaming.  I fos, send the flag to abort
-        
+        # First check if we are streaming.  If it is, send the flag to abort
         if STREAMING:
             if (x>315 and x<412 and y>406 and y<472 and not SCANNING and not START_SCANNING and not DETECTION_MODE and not START_DETECTION_MODE):
                 START_SCANNING=True
@@ -549,28 +519,30 @@ def MouseHandler(event, x, y, flags, param):
                 current_screen=SCREEN_MENU
             else:
                 os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
-                
+
             if DETECTION_MODE:
                 hud=cv2.imread('/home/pi/Ghost-Catcher-Cam/images/hud_cancel.png')
                 cv2.imshow(WINDOW_NAME,img)
-            HideMouse()    
+            HideMouse()
             return
-        elif (x>82 and x<252 and y>90 and y<217 and current_screen==SCREEN_MENU): 
+        elif (x>82 and x<252 and y>90 and y<217 and current_screen==SCREEN_MENU and WIFI_CONNECTED):
             # Handle the Go live tap
             current_screen=4
+            RECORDING=False
             img = cv2.imread('/home/pi/Ghost-Catcher-Cam/images/confirm.png',1)
-            if USB_CONNECTED:
-                img = cv2.putText(img, 'Start Recording!?', (67, 195), cv2.FONT_HERSHEY_SIMPLEX, 2.25, (0, 0, 0), 7, cv2.LINE_AA)
-                img = cv2.putText(img, 'Start Recording!?', (67, 195), cv2.FONT_HERSHEY_SIMPLEX, 2.25, (255, 255, 255), 4, cv2.LINE_AA)
-            elif WIFI_CONNECTED:
-                img = cv2.putText(img, 'Start Streaming!?', (67, 195), cv2.FONT_HERSHEY_SIMPLEX, 2.25, (0, 0, 0), 7, cv2.LINE_AA)
-                img = cv2.putText(img, 'Start Streaming!?', (67, 195), cv2.FONT_HERSHEY_SIMPLEX, 2.25, (255, 255, 255), 4, cv2.LINE_AA)
-            else:
-                img = cv2.putText(img, 'View Only-No WiFi', (67, 195), cv2.FONT_HERSHEY_SIMPLEX, 2.25, (0, 0, 0), 7, cv2.LINE_AA)
-                img = cv2.putText(img, 'View Only-No WiFi', (67, 195), cv2.FONT_HERSHEY_SIMPLEX, 2.25, (255, 255, 255), 4, cv2.LINE_AA)
+            img = cv2.putText(img, 'Start Streaming!?', (67, 195), cv2.FONT_HERSHEY_SIMPLEX, 2.25, (0, 0, 0), 7, cv2.LINE_AA)
+            img = cv2.putText(img, 'Start Streaming!?', (67, 195), cv2.FONT_HERSHEY_SIMPLEX, 2.25, (255, 255, 255), 4, cv2.LINE_AA)
+            cv2.imshow(WINDOW_NAME,img)
+        elif (x>260 and x<460 and y>90 and y<217 and current_screen==SCREEN_MENU and USB_CONNECTED): 
+            # Handle the Record tap
+            current_screen=4
+            RECORDING=True
+            img = cv2.imread('/home/pi/Ghost-Catcher-Cam/images/confirm.png',1)
+            img = cv2.putText(img, 'Start Recording!?', (67, 195), cv2.FONT_HERSHEY_SIMPLEX, 2.25, (0, 0, 0), 7, cv2.LINE_AA)
+            img = cv2.putText(img, 'Start Recording!?', (67, 195), cv2.FONT_HERSHEY_SIMPLEX, 2.25, (255, 255, 255), 4, cv2.LINE_AA)
             cv2.imshow(WINDOW_NAME,img)
         elif (x>465 and x<627 and y>90 and y<217):
-            if current_screen==SCREEN_MENU: 
+            if current_screen==SCREEN_MENU:
                 # Handle the tapped power button
                 current_screen=1
                 img = cv2.imread('/home/pi/Ghost-Catcher-Cam/images/confirm.png',1)
@@ -672,7 +644,14 @@ def GetVolume():
     fd=open("/home/pi/Ghost-Catcher-Cam/config/volume.cfg","r")
     VOLUME=int(fd.read())
     fd.close()
-    
+
+def checkForWiFi():
+    global WIFI_CONNECTED
+    try:
+        temp=socket.gethostbyaddr("192.168.1.176")
+        WIFI_CONNECTED=True
+    except:
+        WIFI_CONNECTED=False
 # Main
 user_tapped_exit=False
 current_screen=SCREEN_MENU
@@ -717,11 +696,6 @@ object_cascade = cv2.CascadeClassifier()
 if not object_cascade.load('/home/pi/Ghost-Catcher-Cam/opencv/haarcascade_frontalface_alt.xml'):
     print('--(!)Error loading object cascade')
     exit(0)
-
-if (socket.gethostbyname(socket.gethostname())=="192.168.1.176"):
-    WIFI_CONNECTED=True
-else:
-    WIFI_CONNECTED=False
 
 # Loop forever until a keyboard key is hit or they close it through the GUI
 while not user_tapped_exit:
