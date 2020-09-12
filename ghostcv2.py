@@ -8,6 +8,7 @@ import random
 import threading
 import datetime
 import socket
+import psutil
 
 # Setup the Touchscreen
 os.putenv('SDL_VIDEODRIVER','fbcon')
@@ -189,6 +190,7 @@ def StreamIt():
     streamkey=streamkey.rstrip()
 
     # Start streaming to YouTube with ffmpeg
+    the_filename=""
     if (not USB_CONNECTED):
          streamkey="</home/pi/Ghost-Catcher-Cam/ramdisk/stop /usr/bin/ffmpeg -v quiet -f lavfi -i anullsrc -f x11grab -framerate 30 -video_size 720x480 -i :0.0 -f flv -s 854x480 -b:v 1024K -framerate 30 rtmp://a.rtmp.youtube.com/live2/" + streamkey + " &"
     else:
@@ -290,11 +292,32 @@ def StreamIt():
             os.system("echo 'q' >ramdisk/stop") #this simulates a keypress of the letter q which stops ffmpeg.  it's genius
             os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/shutdown.wav &")
             # above idea came from https://stackoverflow.com/questions/9722624/how-to-stop-ffmpeg-remotely
- 
+            if (USB_CONNECTED):
+                 img=cv2.imread('/home/pi/Ghost-Catcher-Cam/images/saving.png')
+                 cv2.imshow(WINDOW_NAME, img)
+                 key=cv2.waitKey(1)
+                 os.system("(ffmpeg -v quiet -i /home/pi/usbdrv/" + the_filename + " /home/pi/usbdrv/tp_" + the_filename + " && rm /home/pi/usbdrv/" + the_filename + ") &")
+                 time.sleep(2)
+                 while checkIfProcessRunning('ffmpeg'):
+                      time.sleep(5) 
+
             key = cv2.waitKey(1)
             showGUI()
             STREAMING=False
             break
+def checkIfProcessRunning(processName):
+    '''
+    Check if there is any running process that contains the given name processName.
+    '''
+    #Iterate over the all the running process
+    for proc in psutil.process_iter():
+        try:
+            # Check if process name contains the given name string.
+            if processName.lower() in proc.name().lower():
+                return True
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            pass
+    return False;
 
 def UpdateAudioGraphic():
     # This simulates audio meter
