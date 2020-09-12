@@ -19,7 +19,7 @@ os.putenv('SDL_MOUSEDEV', '/dev/input/touchscreen')
 # Global Variables
 SCREEN_MENU=0
 MOUSE_IGNORE=False
-WINDOW_NAME="mywindow"
+WINDOW_NAME="That Paranormal"
 EVENT_STARTED=False
 START_STREAM=False
 STREAMING=False
@@ -293,14 +293,22 @@ def StreamIt():
             os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/shutdown.wav &")
             # above idea came from https://stackoverflow.com/questions/9722624/how-to-stop-ffmpeg-remotely
             if (USB_CONNECTED):
-                 img=cv2.imread('/home/pi/Ghost-Catcher-Cam/images/saving.png')
-                 cv2.imshow(WINDOW_NAME, img)
-                 key=cv2.waitKey(1)
-                 os.system("(ffmpeg -v quiet -i /home/pi/usbdrv/" + the_filename + " /home/pi/usbdrv/tp_" + the_filename + " && rm /home/pi/usbdrv/" + the_filename + ") &")
-                 time.sleep(2)
+                 os.system("(ffmpeg -y -v quiet -i /home/pi/usbdrv/" + the_filename + " /home/pi/usbdrv/tp_" + the_filename + " && rm /home/pi/usbdrv/" + the_filename + ") &")
+                 ii=0
+                 im1=cv2.imread('/home/pi/Ghost-Catcher-Cam/images/saving.png')
+                 im2=cv2.imread('/home/pi/Ghost-Catcher-Cam/images/saving1.png')
                  while checkIfProcessRunning('ffmpeg'):
-                      time.sleep(5) 
-
+                      if ii==0:
+                           cv2.imshow(WINDOW_NAME, im1)
+                           key=cv2.waitKey(1)
+                      elif ii==1:
+                           cv2.imshow(WINDOW_NAME, im2)
+                           key=cv2.waitKey(1)
+                      else:
+                            ii=-1
+                      time.sleep(1)
+                      ii=ii+1
+            os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/done.wav &")
             key = cv2.waitKey(1)
             showGUI()
             STREAMING=False
@@ -491,16 +499,16 @@ def BeepEverySecond():
 def showGUI():
     img = cv2.imread('/home/pi/Ghost-Catcher-Cam/images/gui.png',1)
     if WIFI_CONNECTED and not USB_CONNECTED:
-        cv2.putText(img, "WiFi", (330, 158), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 3, cv2.LINE_AA)
-        cv2.putText(img, "WiFi", (330, 158), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
-        cv2.putText(img, "Enabled", (300, 187), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 3, cv2.LINE_AA)
-        cv2.putText(img, "Enabled", (300, 187), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+        cv2.putText(img, "WiFi", (330, 158), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 3, cv2.LINE_AA)
+        cv2.putText(img, "WiFi", (330, 158), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 100, 0), 2, cv2.LINE_AA)
+        cv2.putText(img, "Enabled", (300, 187), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 3, cv2.LINE_AA)
+        cv2.putText(img, "Enabled", (300, 187), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 100, 0), 2, cv2.LINE_AA)
     elif not WIFI_CONNECTED and not USB_CONNECTED:
         cv2.putText(img, "No WiFi!", (300, 158), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 7, cv2.LINE_AA)
         cv2.putText(img, "No WiFi!", (300, 158), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0, 255), 2, cv2.LINE_AA)
     if USB_CONNECTED:
-        cv2.putText(img, "USING USB", (270, 190), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 3, cv2.LINE_AA)
-        cv2.putText(img, "USING USB", (270, 190), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+        cv2.putText(img, "USING USB", (270, 190), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 3, cv2.LINE_AA)
+        cv2.putText(img, "USING USB", (270, 190), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 100, 0), 2, cv2.LINE_AA)
     elif not WIFI_CONNECTED:
         cv2.putText(img, "No USB!", (298, 190), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 7, cv2.LINE_AA)
         cv2.putText(img, "No USB!", (298, 190), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
@@ -693,7 +701,7 @@ camera = PiCamera()
 camera.resolution = (720, 480)
 camera.framerate = 30
 camera.rotation = 0
-camera.exposure_mode='night'
+camera.exposure_mode='auto'
 camera.image_effect='denoise'
 camera.brightness = 50
 rawCapture = PiRGBArray(camera, size=(720, 480) )
