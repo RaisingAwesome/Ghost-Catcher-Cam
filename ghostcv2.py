@@ -46,11 +46,13 @@ ALLOW_BEEP=False
 WIFI_CONNECTED=False
 USB_CONNECTED=True
 RECORDING=True
+last_detect_time=time.time()
+last_geiger_time=time.time()
 
 def HideMouse():
     # Click the mouse out of the view.  for some reason, even though I hide it in the operating system, it shows when streaming.
     global MOUSE_IGNORE
-    
+
     MOUSE_IGNORE=True #don't want to register a real click that the logic will catch.  6 will be caught and ignored by the handler
     m = PyMouse()
     m.click(720, 480, 1)
@@ -60,19 +62,24 @@ def HideMouse():
 def DetectObject():
     # When Detection Mode is on, this will look for a face and
     # Circle it for one frame
-    global object_cascade, img, object_cascade, START_FACE_DETECTED, MOTION_DETECTED
-    
+    global object_cascade, img, object_cascade, START_FACE_DETECTED, MOTION_DETECTED, last_detect_time
+
     # If we are still counting down, exit the routine until we reach zero
     if DETECTION_COUNTDOWN:
         return
-    
+
+    if time.time()-last_detect_time<.5:
+        return
+
+    last_detect_time=time.time()
+
     frame_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     frame_gray = cv2.equalizeHist(frame_gray)
-    
+
     if not MOTION_DETECTED:
         # We check for motion to prevent seeing something over and over and over again.
         DetectMotion(frame_gray)
-    
+
     if MOTION_DETECTED:
         #-- Detect objects
         faces = object_cascade.detectMultiScale(frame_gray)
@@ -84,7 +91,10 @@ def DetectObject():
                 for (x,y,w,h) in faces:
                     center = (x + w//2, y + h//2)
                     img = cv2.ellipse(img, center, (w//2, h//2), 0, 0, 360, (0, 0, 255), 4)
-                
+                    img = cv2.line(img, (x+w//2,y+h), (x+w//2,y+h*2), (0, 155, 155), 8)
+                    img = cv2.line(img, (x-w//3,int(y+(h*1.5))), (x+w//2,int(y+(h*1.25))), (0, 155, 155), 8)
+                    img = cv2.line(img, (x+w//2,int(y+(h*1.25))), (int(x+w+w//3),int(y+h*1.8)), (0, 155, 155), 8)
+
 def DetectFaceAgain():
     global object_cascade, img, object_cascade, START_FACE_DETECTED, MOTION_DETECTED
 
@@ -96,6 +106,9 @@ def DetectFaceAgain():
         for (x,y,w,h) in faces:
             center = (x + w//2, y + h//2)
             img = cv2.ellipse(img, center, (w//2, h//2), 0, 0, 360, (0, 0, 255), 4)
+            img = cv2.line(img, (x+w//2,y+h), (x+w//2,y+h*2), (0, 155, 155), 8)
+            img = cv2.line(img, (x-w//3,int(y+(h*1.5))), (x+w//2,int(y+(h*1.25))), (0, 155, 155), 8)
+            img = cv2.line(img, (x+w//2,int(y+(h*1.25))), (int(x+w+w//3),int(y+h*1.8)), (0, 155, 155), 8)
 
 def DetectMotion(gray):
     # Modified version of https://github.com/methylDragon/opencv-motion-detector/blob/master/Motion%20Detector.py
@@ -130,7 +143,7 @@ def DetectMotion(gray):
         for c in cnts:
             # Save the coordinates of all found contours
             (x, y, w, h) = cv2.boundingRect(c)
-            
+
             # If the contour is too small, ignore it, otherwise, there's transient
             # movement
             if cv2.contourArea(c) > MIN_SIZE_FOR_MOVEMENT:
@@ -140,11 +153,11 @@ def DetectMotion(gray):
                 motion_timer=threading.Timer(5,EndMotionDetected)
                 motion_timer.start()
         return
-    
+
 def EndMotionDetected():
     global MOTION_DETECTED
     MOTION_DETECTED=False
-    
+
 def EndFaceDetection():
     # When a face is detected, it shows the word Anomaly
     # for 15 seconds.  This turns the display off once
@@ -156,13 +169,13 @@ def StreamIt():
     # The main routine that streams the camera
     # and determines what to show on the dipslay
     # Reference - http://www.pyimagesearch.com/2015/03/30/accessing-the-raspberry-pi-camera-with-opencv-and-python/
-    
+
     global current_screen, WINDOW_NAME, img, camera, rawCapture, SCREEN_MENU, STREAMING
     global START_SCANNING, SCANNING, DETECTION_MODE, ACTIVITY_COUNT, START_FACE_DETECTED
     global FACE_DETECTED, ACTIVITY_COUNT, start_time, DETECTION_COUNTDOWN, hud
     global ALLOW_BEEP
     start_time=time.time()
-    
+
     current_screen=5
     hud=cv2.imread('/home/pi/Ghost-Catcher-Cam/images/hud.png')
     os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/spooky_sound7.wav & ")
@@ -236,6 +249,7 @@ def StreamIt():
                 cv2.putText(img, 'Sensing', (180, 454), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2, cv2.LINE_AA)
         else:
             cv2.putText(img, 'Normal', (180, 454), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+            playGeiger()
 
         cv2.putText(img, str(ACTIVITY_COUNT), (635, 53), cv2.FONT_HERSHEY_SIMPLEX, .9, (0, 0, 0), 4, cv2.LINE_AA)
         cv2.putText(img, str(ACTIVITY_COUNT), (635, 53), cv2.FONT_HERSHEY_SIMPLEX, .9, (255, 255, 255), 2, cv2.LINE_AA)
@@ -308,6 +322,15 @@ def checkIfProcessRunning(processName):
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             pass
     return False;
+
+def playGeiger():
+    global last_geiger_time
+    if (time.time()-last_geiger_time>60):
+        if (random.randrange(20)<18):
+           return
+        else:
+           os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/geiger" + str(random.randrange(2)) + ".wav &")
+           last_geiger_time=time.time()
 
 def UpdateAudioGraphic():
     # This simulates audio meter
