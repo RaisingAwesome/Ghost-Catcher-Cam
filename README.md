@@ -2,7 +2,7 @@
 A Camera for Ghost Hunting
 
 
-An up-and-coming project to build a camera that can seek and capture the presense of ghosts and upload it to the cloud.
+An up-and-coming project to build a camera that can seek and capture the presense of ghosts while streaming to the cloud or USB storage.
 
 ## Raspberry Pi Setup for the Ghost-Catcher-Cam
 
