@@ -158,3 +158,5 @@ Redirecting Command Line Output:
       You can do so with the following at the end of the command line string:
       
       2>/dev/null
+      
+Measure Temp:  vcgencmd measure_temp
