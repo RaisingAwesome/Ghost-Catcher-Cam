@@ -55,7 +55,10 @@ Install the package that allows you to move the mouse cursor.  This is needed to
 
 #### c.  OpenCV for Python3:
 
-      sudo apt-get install python3-opencv #takes a while, its bigger than 250M
+      sudo apt-get install libjpeg-dev libtiff5-dev libjasper-dev libpng-dev
+      sudo apt-get install libhdf5-dev libhdf5-serial-dev libhdf5-103
+      sudo apt-get install libqtgui4 libqtwebkit4 libqt4-test python3-pyqt5
+      pip3 install opencv-contrib-python==4.1.0.25
            
 ### 5.  Clone this Repository and Setup the Environment:
 a.  From the terminal, paste the following:
@@ -100,6 +103,7 @@ f.  Set up for USB Storage
 First, make a directory:  mkdir /home/pi/usbdrv
 
 Then get your UUID for the drive with this command:
+
      ls -l /dev/disk/by-uuid | grep sda1
 
 then do sudo nano /etc/fstab and add the following line REPLACING YOUR UUID from above:
