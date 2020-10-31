@@ -54,12 +54,8 @@ Install the package that allows you to move the mouse cursor.  This is needed to
       sudo pip3 install PyUserInput #hide the mouse while streaming
 
 #### c.  OpenCV for Python3:
-
-      sudo apt-get install libjpeg-dev libtiff5-dev libjasper-dev libpng-dev
-      sudo apt-get install libhdf5-dev libhdf5-serial-dev libhdf5-103
-      sudo apt-get install libqtgui4 libqtwebkit4 libqt4-test python3-pyqt5
-      pip3 install opencv-contrib-python==4.1.0.25
-           
+      sudo apt install python3-opencv
+                
 ### 5.  Clone this Repository and Setup the Environment:
 a.  From the terminal, paste the following:
 
@@ -67,7 +63,7 @@ a.  From the terminal, paste the following:
       git clone https://github.com/RaisingAwesome/Ghost-Catcher-Cam
       cd Ghost-Catcher-Cam
       sudo chmod +777 runner.sh
-      ./runner.sh #to run it
+      ./runner.sh #to run itsudo apt install python3-opencv
 
 b.  Copy the bootup splash screen.  You can change it by making a .png image with dimensions 480x320.  This post tells you how to get rid of the stuff at the bottom of the screen:  https://www.thedigitalpictureframe.com/customize-your-raspberry-pi-splash-screen-raspbian-stretch-april-2019-version/.  It is possible that it boots so fast that you don't get to see it.  In turn, you may want to set this as the Raspberry Pi Desktop background instead.   
 
