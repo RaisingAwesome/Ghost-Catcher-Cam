@@ -59,6 +59,13 @@ def HideMouse():
     k=cv2.waitKey(10) # allow time to process without problems
     MOUSE_IGNORE=False
 
+def GetTemp():
+    os.system("vcgencmd measure_temp >/home/pi/Ghost-Catcher-Cam/ramdisk/the_temp")
+    fileObject = open("/home/pi/Ghost-Catcher-Cam/ramdisk/the_temp", "r")
+    the_temp = fileObject.read()
+    the_temp=the_temp[5:7]
+    return the_temp
+
 def DetectObject():
     # When Detection Mode is on, this will look for a face and
     # Circle it for one frame
@@ -218,7 +225,8 @@ def StreamIt():
 
     # capture frames from the camera
     for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
-    	# grab the raw NumPy array representing the image, then initialize the timestamp
+        theTemp=GetTemp()
+        # grab the raw NumPy array representing the image, then initialize the timestamp
     	# and occupied/unoccupied text
         img = frame.array
         if not SCANNING and not DETECTION_MODE:
@@ -253,8 +261,8 @@ def StreamIt():
 
         cv2.putText(img, str(ACTIVITY_COUNT), (635, 53), cv2.FONT_HERSHEY_SIMPLEX, .9, (0, 0, 0), 4, cv2.LINE_AA)
         cv2.putText(img, str(ACTIVITY_COUNT), (635, 53), cv2.FONT_HERSHEY_SIMPLEX, .9, (255, 255, 255), 2, cv2.LINE_AA)
-        cv2.putText(img, '70.2F', (170, 53), cv2.FONT_HERSHEY_SIMPLEX, .9, (0, 0, 0), 4, cv2.LINE_AA)
-        cv2.putText(img, '70.2F', (170, 53), cv2.FONT_HERSHEY_SIMPLEX, .9, (255, 255, 255), 2, cv2.LINE_AA)
+        cv2.putText(img, theTemp, (170, 53), cv2.FONT_HERSHEY_SIMPLEX, .9, (0, 0, 0), 4, cv2.LINE_AA)
+        cv2.putText(img, theTemp, (170, 53), cv2.FONT_HERSHEY_SIMPLEX, .9, (255, 255, 255), 2, cv2.LINE_AA)
         cv2.putText(img, time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), (210,20),cv2.FONT_HERSHEY_SIMPLEX, .9, (255, 255, 255), 2, cv2.LINE_AA)
 
         if FACE_DETECTED:
