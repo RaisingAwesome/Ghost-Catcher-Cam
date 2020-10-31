@@ -99,7 +99,10 @@ f.  Set up for USB Storage
 
 First, make a directory:  mkdir /home/pi/usbdrv
 
-then do sudo nano /etc/fstab and add the following line:
+Then get your UUID for the drive with this command:
+     ls -l /dev/disk/by-uuid | grep sda1
+
+then do sudo nano /etc/fstab and add the following line REPLACING YOUR UUID from above:
 
      UUID=6D80-1752 /home/pi/usbdrv vfat defaults,auto,users,rw,nofail,umask=000 0 0
      
