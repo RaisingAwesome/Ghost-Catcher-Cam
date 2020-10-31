@@ -209,7 +209,7 @@ def StreamIt():
          streamkey="</home/pi/Ghost-Catcher-Cam/ramdisk/stop /usr/bin/ffmpeg -v quiet -f lavfi -i anullsrc -f x11grab -framerate 30 -video_size 720x480 -i :0.0 -f flv -s 854x480 -b:v 1024K -framerate 30 rtmp://a.rtmp.youtube.com/live2/" + streamkey + " &"
     else:
          now = datetime.datetime.now()
-         the_filename = "video-" + str(now.hour) + "-" + str(now.minute) + ".wmv"
+         the_filename = "video-" + str(now.hour) + "-" + str(now.minute) + ".mov"
          streamkey="</home/pi/Ghost-Catcher-Cam/ramdisk/stop /usr/bin/ffmpeg -v quiet -f lavfi -i anullsrc -f x11grab -framerate 30 -video_size 720x480 -i :0.0 -b:v 1M /home/pi/usbdrv/" + the_filename + " &"
     os.system(streamkey)
 
@@ -262,7 +262,7 @@ def StreamIt():
             # blocks of the HUD would go over the top of the audioGraphic.
             UpdateAudioGraphic()
         if SCANNING:
-            cv2.putText(img, "scanning", (230, 150), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 6, cv2.LINE_AA)
+            cv2.putText(img, "Frequency Scanning", (40, 150), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 6, cv2.LINE_AA)
             UpdateAudioGraphic()
 
             time_left=13-seconds_between(start_time,time.time())
@@ -326,10 +326,10 @@ def checkIfProcessRunning(processName):
 def playGeiger():
     global last_geiger_time
     if (time.time()-last_geiger_time>60):
-        if (random.randrange(20)<18):
+        if (random.randrange(100)<98):
            return
         else:
-           os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/geiger" + str(random.randrange(2)) + ".wav &")
+           os.system("aplay -q -d " + str(1 + random.randrange(10)) + " /home/pi/Ghost-Catcher-Cam/sounds/geiger" + str(random.randrange(2)) + ".wav &")
            last_geiger_time=time.time()
 
 def UpdateAudioGraphic():
@@ -373,10 +373,10 @@ def PlayScanning():
     os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/static.wav &")
 
     # 1 in 13 chance to hear something spooky at a random time during the scanning
-    dice=random.randrange(13)
+    dice=random.randrange(8)
 
-    #dice=12 # eliminate this after you know the rest of the audio strategy works
-    if (dice==12):
+    #dice=12 # comment this line after you know the rest of the audio strategy works
+    if (dice==7):
         delay=2 + random.randrange(10)
         t=threading.Timer(delay,PlayScannedAudio)
         t.start()
@@ -732,4 +732,5 @@ while not user_tapped_exit:
 
 # Cleanup and exit
 cv2.destroyAllWindows()
+os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/geiger1.wav &")
 exit()
