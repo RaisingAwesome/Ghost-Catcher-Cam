@@ -180,7 +180,7 @@ def StreamIt():
     global current_screen, WINDOW_NAME, img, camera, rawCapture, SCREEN_MENU, STREAMING
     global START_SCANNING, SCANNING, DETECTION_MODE, ACTIVITY_COUNT, START_FACE_DETECTED
     global FACE_DETECTED, ACTIVITY_COUNT, start_time, DETECTION_COUNTDOWN, hud
-    global ALLOW_BEEP
+    global ALLOW_BEEP, RECORDING
     start_time=time.time()
 
     current_screen=5
@@ -381,11 +381,11 @@ def PlayScanning():
     os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/static.wav &")
 
     # 1 in 13 chance to hear something spooky at a random time during the scanning
-    dice=random.randrange(8)
+    dice=random.randrange(6)
 
     #dice=12 # comment this line after you know the rest of the audio strategy works
-    if (dice==7):
-        delay=2 + random.randrange(10)
+    if (dice==6):
+        delay=2 + random.randrange(8)
         t=threading.Timer(delay,PlayScannedAudio)
         t.start()
 
@@ -521,7 +521,7 @@ def MouseHandler(event, x, y, flags, param):
     # and what routines where running
     global user_tapped_exit, current_screen, img,WINDOW_NAME, MOUSE_IGNORE, START_STREAM
     global START_SCANNING, SCANNING, DETECTION_MODE, START_DETECTION_MODE, VOLUME,hud
-    global ALLOW_BEEP
+    global ALLOW_BEEP, RECORDING
     if MOUSE_IGNORE:
         return
     if event==cv2.EVENT_LBUTTONDOWN:
