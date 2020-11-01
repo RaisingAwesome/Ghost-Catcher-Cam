@@ -105,6 +105,12 @@ Then get your UUID for the drive with this command:
 then do sudo nano /etc/fstab and add the following line REPLACING YOUR UUID from above:
 
      UUID=6D80-1752 /home/pi/usbdrv vfat defaults,auto,users,rw,nofail,umask=000 0 0
+
+g.  Set GPIO 22 to output high on boot to latch in the power (if have the latching motherboard I designed)
+     
+     sudo nano /boot/config.txt
+     #add the line 
+     gpio=12=op,dh
      
 ### 6.  Accelerometer
 a.  The 3-axis magnetometer:  https://www.amazon.com/gp/product/B008V9S64E/ref=ppx_yo_dt_b_asin_title_o08_s00?ie=UTF8&psc=1
