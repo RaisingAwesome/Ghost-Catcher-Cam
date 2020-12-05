@@ -32,7 +32,7 @@ START_FACE_DETECTED=False
 FACE_DETECTED=False
 START_DETECTION_MODE=False
 DETECTION_MODE=False
-DETECTION_MODE=False
+DETECTION_COUNTDOWN=False
 ACTIVITY_COUNT=0
 VOLUME=70
 FRAMES_TO_PERSIST=10
@@ -72,7 +72,7 @@ def GetTemp():
 def DetectObject():
     # When Detection Mode is on, this will look for a face and
     # Circle it for one frame
-    global object_cascade, img, object_cascade, START_FACE_DETECTED, MOTION_DETECTED, last_detect_time
+    global object_cascade, img, object_cascade, START_FACE_DETECTED, MOTION_DETECTED, last_detect_time, DETECTION_COUNTDOWN
 
     # If we are still counting down, exit the routine until we reach zero
     if DETECTION_COUNTDOWN:
@@ -260,15 +260,16 @@ def StreamIt():
                 cv2.putText(img, 'Sensing', (180, 454), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2, cv2.LINE_AA)
         else:
             cv2.putText(img, 'Normal', (180, 454), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
-            tempangle=-85
-            if (geiger_duration>0):
-                tempangle=45+random.randrange(40)
+        tempangle=-85
+        if (geiger_duration>0):
+            tempangle=45+random.randrange(40)
 
-            if myangle>tempangle:
-                myangle=myangle-(10/(1+random.randrange(5)))
-            else:
-                myangle=myangle+10
+        if myangle>tempangle:
+            myangle=myangle-(10/(1+random.randrange(5)))
+        else:
+            myangle=myangle+10
 
+        if (not DETECTION_COUNTDOWN):
             tempx=int(114 + 60*(math.sin(math.radians(myangle))))
             tempy=int(420 - 60*(math.cos(math.radians(myangle))))
             img = cv2.line(img, (tempx,tempy), (114,423), (0, 0, 0), 2)
