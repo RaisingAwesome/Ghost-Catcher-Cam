@@ -9,7 +9,7 @@ import threading
 import datetime
 import socket
 import psutil
-
+import math
 # Setup the Touchscreen
 os.putenv('SDL_VIDEODRIVER','fbcon')
 os.putenv('SDL_FBDEV', '/dev/fb1')
@@ -46,6 +46,9 @@ ALLOW_BEEP=False
 WIFI_CONNECTED=False
 USB_CONNECTED=True
 RECORDING=True
+myangle=-85
+geiger_duration=0
+
 last_detect_time=time.time()
 last_geiger_time=time.time()
 
@@ -98,9 +101,9 @@ def DetectObject():
                 for (x,y,w,h) in faces:
                     center = (x + w//2, y + h//2)
                     img = cv2.ellipse(img, center, (w//2, h//2), 0, 0, 360, (0, 0, 255), 4)
-                    img = cv2.line(img, (x+w//2,y+h), (x+w//2,y+h*2), (0, 155, 155), 8)
-                    img = cv2.line(img, (x-w//3,int(y+(h*1.5))), (x+w//2,int(y+(h*1.25))), (0, 155, 155), 8)
-                    img = cv2.line(img, (x+w//2,int(y+(h*1.25))), (int(x+w+w//3),int(y+h*1.8)), (0, 155, 155), 8)
+                    img = cv2.line(img, (x+w//2,y+h), (x+w//2,y+h*2), (0, 155, 155), 1)
+                    img = cv2.line(img, (x-w//3,int(y+(h*1.5))), (x+w//2,int(y+(h*1.25))), (0, 155, 155), 1)
+                    img = cv2.line(img, (x+w//2,int(y+(h*1.25))), (int(x+w+w//3),int(y+h*1.8)), (0, 155, 155), 1)
 
 def DetectFaceAgain():
     global object_cascade, img, object_cascade, START_FACE_DETECTED, MOTION_DETECTED
@@ -112,10 +115,10 @@ def DetectFaceAgain():
     if len(faces)>0:
         for (x,y,w,h) in faces:
             center = (x + w//2, y + h//2)
-            img = cv2.ellipse(img, center, (w//2, h//2), 0, 0, 360, (0, 0, 255), 4)
-            img = cv2.line(img, (x+w//2,y+h), (x+w//2,y+h*2), (0, 155, 155), 8)
-            img = cv2.line(img, (x-w//3,int(y+(h*1.5))), (x+w//2,int(y+(h*1.25))), (0, 155, 155), 8)
-            img = cv2.line(img, (x+w//2,int(y+(h*1.25))), (int(x+w+w//3),int(y+h*1.8)), (0, 155, 155), 8)
+            img = cv2.ellipse(img, center, (w//2, h//2), 0, 0, 360, (40, 40, 40), 2)
+            img = cv2.line(img, (x+w//2,y+h), (x+w//2,y+h*2), (40, 40, 40), 1)
+            img = cv2.line(img, (x-w//3,int(y+(h*1.5))), (x+w//2,int(y+(h*1.25))), (40, 40, 40), 1)
+            img = cv2.line(img, (x+w//2,int(y+(h*1.25))), (int(x+w+w//3),int(y+h*1.8)), (40, 40, 40), 1)
 
 def DetectMotion(gray):
     # Modified version of https://github.com/methylDragon/opencv-motion-detector/blob/master/Motion%20Detector.py
@@ -180,7 +183,7 @@ def StreamIt():
     global current_screen, WINDOW_NAME, img, camera, rawCapture, SCREEN_MENU, STREAMING
     global START_SCANNING, SCANNING, DETECTION_MODE, ACTIVITY_COUNT, START_FACE_DETECTED
     global FACE_DETECTED, ACTIVITY_COUNT, start_time, DETECTION_COUNTDOWN, hud
-    global ALLOW_BEEP, RECORDING
+    global ALLOW_BEEP, RECORDING, myangle
     start_time=time.time()
 
     current_screen=5
@@ -257,6 +260,18 @@ def StreamIt():
                 cv2.putText(img, 'Sensing', (180, 454), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2, cv2.LINE_AA)
         else:
             cv2.putText(img, 'Normal', (180, 454), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+            tempangle=-85
+            if (geiger_duration>0):
+                tempangle=45+random.randrange(40)
+
+            if myangle>tempangle:
+                myangle=myangle-(10/(1+random.randrange(5)))
+            else:
+                myangle=myangle+10
+
+            tempx=int(114 + 60*(math.sin(math.radians(myangle))))
+            tempy=int(420 - 60*(math.cos(math.radians(myangle))))
+            img = cv2.line(img, (tempx,tempy), (114,423), (0, 0, 0), 2)
             playGeiger()
 
         cv2.putText(img, str(ACTIVITY_COUNT), (635, 53), cv2.FONT_HERSHEY_SIMPLEX, .9, (0, 0, 0), 4, cv2.LINE_AA)
@@ -332,13 +347,16 @@ def checkIfProcessRunning(processName):
     return False;
 
 def playGeiger():
-    global last_geiger_time
+    global last_geiger_time, geiger_duration
     if (time.time()-last_geiger_time>60):
         if (random.randrange(100)<98):
            return
         else:
-           os.system("aplay -q -d " + str(1 + random.randrange(10)) + " /home/pi/Ghost-Catcher-Cam/sounds/geiger" + str(random.randrange(2)) + ".wav &")
+           geiger_duration=random.randrange(10)+1
+           os.system("aplay -q -d " + str(geiger_duration) + " /home/pi/Ghost-Catcher-Cam/sounds/geiger" + str(random.randrange(2)) + ".wav &")
            last_geiger_time=time.time()
+    if (time.time()-geiger_duration>last_geiger_time):
+        geiger_duration=0
 
 def UpdateAudioGraphic():
     # This simulates audio meter
@@ -532,6 +550,7 @@ def MouseHandler(event, x, y, flags, param):
         return
     elif event==cv2.EVENT_LBUTTONUP:
         # First check if we are streaming.  If it is, send the flag to abort
+        #print("x: %d, y: %d",x,y) 
         if STREAMING:
             if (x>315 and x<412 and y>406 and y<472 and not SCANNING and not START_SCANNING and not DETECTION_MODE and not START_DETECTION_MODE):
                 START_SCANNING=True
