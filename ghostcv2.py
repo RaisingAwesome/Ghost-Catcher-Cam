@@ -268,7 +268,7 @@ def StreamIt():
         if myangle>tempangle:
             myangle=myangle-(10/(1+random.randrange(5)))
         else:
-            myangle=myangle+10
+            myangle=myangle+(10/(1+random.randrange(5)))
 
         if (not DETECTION_COUNTDOWN):
             tempx=int(114 + 60*(math.sin(math.radians(myangle))))
