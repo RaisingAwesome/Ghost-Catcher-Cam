@@ -51,6 +51,7 @@ geiger_duration=0
 
 last_detect_time=time.time()
 next_geiger_time=time.time()+60
+last_geiger_time=time.time()
 
 def HideMouse():
     # Click the mouse out of the view.  for some reason, even though I hide it in the operating system, it shows when streaming.
@@ -348,11 +349,12 @@ def checkIfProcessRunning(processName):
     return False;
 
 def playGeiger():
-    global next_geiger_time, geiger_duration
+    global next_geiger_time, geiger_duration, last_geiger_time
     if (time.time()>next_geiger_time):
        geiger_duration=random.randrange(10)+1
        os.system("aplay -q -d " + str(geiger_duration) + " /home/pi/Ghost-Catcher-Cam/sounds/geiger" + str(random.randrange(2)) + ".wav &")
        next_geiger_time=time.time()+60+random.randrange(180)
+       last_geiger_time=time.time()
     if (time.time()-geiger_duration>last_geiger_time):
         geiger_duration=0
 
