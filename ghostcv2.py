@@ -27,7 +27,6 @@ START_SCANNING=False
 SCANNING=False
 PEG_AUDIO=False
 START_PEG_AUDIO=False
-TOTAL_RADIO_FILES=10
 START_FACE_DETECTED=False
 FACE_DETECTED=False
 START_DETECTION_MODE=False
@@ -49,9 +48,14 @@ RECORDING=True
 myangle=-85
 geiger_duration=0
 
+TOTAL_RADIO_FILES=16
+SOUND_TRACK=0
+the_sounds=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
+
 last_detect_time=time.time()
 next_geiger_time=time.time()+60
 last_geiger_time=time.time()
+last_time_touched=time.time()
 
 def HideMouse():
     # Click the mouse out of the view.  for some reason, even though I hide it in the operating system, it shows when streaming.
@@ -220,7 +224,7 @@ def StreamIt():
          streamkey="</home/pi/Ghost-Catcher-Cam/ramdisk/stop /usr/bin/ffmpeg -v quiet -f lavfi -i anullsrc -f x11grab -framerate 30 -video_size 720x480 -i :0.0 -f flv -s 854x480 -b:v 1024K -framerate 30 rtmp://a.rtmp.youtube.com/live2/" + streamkey + " &"
     else:
          now = datetime.datetime.now()
-         the_filename = "video-" + str(now.hour) + "-" + str(now.minute) + ".avi"
+         the_filename = "video-" + str(now.hour) + "-" + str(now.minute) + "-" + str(now.second) + ".avi"
          streamkey="</home/pi/Ghost-Catcher-Cam/ramdisk/stop /usr/bin/ffmpeg -v quiet -f lavfi -i anullsrc -f x11grab -framerate 30 -video_size 720x480 -i :0.0 -b:v 1M /home/pi/usbdrv/" + the_filename + " &"
     os.system(streamkey)
 
@@ -261,6 +265,7 @@ def StreamIt():
                 cv2.putText(img, 'Sensing', (180, 454), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2, cv2.LINE_AA)
         else:
             cv2.putText(img, 'Normal', (180, 454), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+       
         tempangle=-85
         if (geiger_duration>0):
             tempangle=45+random.randrange(40)
@@ -353,10 +358,22 @@ def playGeiger():
     if (time.time()>next_geiger_time):
        geiger_duration=random.randrange(10)+1
        os.system("aplay -q -d " + str(geiger_duration) + " /home/pi/Ghost-Catcher-Cam/sounds/geiger" + str(random.randrange(2)) + ".wav &")
-       next_geiger_time=time.time()+60+random.randrange(180)
+       next_geiger_time=time.time()+30+random.randrange(60)
        last_geiger_time=time.time()
     if (time.time()-geiger_duration>last_geiger_time):
         geiger_duration=0
+
+def shuffle():
+    #used to randomize the order of the values in the array.  Awesomeness.
+    global TOTAL_RADIO_FILES, the_sounds
+    n = TOTAL_RADIO_FILES        #The number of items left to shuffle (loop invariant) starting with total items.
+
+    while (n > 1):
+        k = random.randrange(n)  # 0 <= k < n.
+        n=n-1                     # n is now the last pertinent index
+        temp = the_sounds[n]     # swap array[n] with array[k] (does nothing if k == n, inherently).
+        the_sounds[n] = the_sounds[k]
+        the_sounds[k] = temp;
 
 def UpdateAudioGraphic():
     # This simulates audio meter
@@ -394,26 +411,42 @@ def seconds_between(d1, d2):
     return (abs(int(d1-d2)))
 
 def PlayScanning():
-    # Play the radio static.  Roll the 13 sided die to
-    # determine if a sound will be played.
-    os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/static.wav &")
+    # Play the radio static.  Roll the die to
+    # determine if a sound will be played or just play it if they scanned when the geiger was >65.
 
-    # 1 in 13 chance to hear something spooky at a random time during the scanning
-    dice=random.randrange(6)
+    global myangle
 
-    #dice=12 # comment this line after you know the rest of the audio strategy works
-    if (dice==6):
+    dice=0
+    if myangle>44 and myangle<60:
+        dice=random.randrange(2)
+    elif myangle>=61:
+        dice=1
+    else:
+        dice=random.randrange(8)
+
+    if (dice==1):
         delay=2 + random.randrange(8)
+
+        if myangle<60:
+            os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/static.wav &")
+        else:
+            os.system("aplay -q -d " + str(delay) + " /home/pi/Ghost-Catcher-Cam/sounds/static.wav &")
+
         t=threading.Timer(delay,PlayScannedAudio)
         t.start()
+    else:
+        os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/static.wav &")
 
 def PlayScannedAudio():
     # Called randomly to play a random file
-    global START_PEG_AUDIO, ACTIVITY_COUNT
-    START_PEG_AUDIO=True
-    num=random.randrange(TOTAL_RADIO_FILES)
-    os.system("(aplay -q /home/pi/Ghost-Catcher-Cam/sounds/radio/" + str(num) + ".wav) & ")
+    global START_PEG_AUDIO, ACTIVITY_COUNT, SOUND_TRACK, TOTAL_RADIO_FILES,the_sounds, myangle
+    START_PEG_AUDIO=True #Starts the EQ bar animation on the right of the screen
+    myangle=88 #peg the EMF meter
+    os.system("(aplay -q /home/pi/Ghost-Catcher-Cam/sounds/radio/" + str(the_sounds[SOUND_TRACK]) + ".wav) & ")
     ACTIVITY_COUNT=ACTIVITY_COUNT+1
+    SOUND_TRACK=SOUND_TRACK+1
+    if SOUND_TRACK>=TOTAL_RADIO_FILES:
+        SOUND_TRACK=0
 
 def StopScanning():
     # Used by a timer thread to end the 13 second audio
@@ -539,18 +572,33 @@ def MouseHandler(event, x, y, flags, param):
     # and what routines where running
     global user_tapped_exit, current_screen, img,WINDOW_NAME, MOUSE_IGNORE, START_STREAM
     global START_SCANNING, SCANNING, DETECTION_MODE, START_DETECTION_MODE, VOLUME,hud
-    global ALLOW_BEEP, RECORDING
+    global ALLOW_BEEP, RECORDING, last_time_touched
+
     if MOUSE_IGNORE:
         return
     if event==cv2.EVENT_LBUTTONDOWN:
+        delta_time=time.time()-last_time_touched
+        if (delta_time<.5):
+            return # prevent the inadvertent bounce tap
+
         if not SCANNING:
             os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/bink.wav &")
         else:
             os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
         return
     elif event==cv2.EVENT_LBUTTONUP:
+        delta_time=time.time()-last_time_touched
+        if (delta_time<.5):
+            return # prevent the inadvertent bounce tap
+
+        if (delta_time>300):
+            #The screen blanks after 5 minutes.  This will suppress the tap to wake it back up if not tapped in 5 minutes
+            last_time_touched=time.time()
+            return
+        else:
+            last_time_touched=time.time()
+
         # First check if we are streaming.  If it is, send the flag to abort
-        #print("x: %d, y: %d",x,y) 
         if STREAMING:
             if (x>315 and x<412 and y>406 and y<472 and not SCANNING and not START_SCANNING and not DETECTION_MODE and not START_DETECTION_MODE):
                 START_SCANNING=True
@@ -670,7 +718,7 @@ def MouseHandler(event, x, y, flags, param):
             else:
                 os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/volumeup.wav &")
             os.system("echo \"" + str(VOLUME) + "\" > /home/pi/Ghost-Catcher-Cam/config/volume.cfg &")
-            os.system("amixer -q set Headphone " + str(VOLUME) + "%")                
+            os.system("amixer -q set Master " + str(VOLUME) + "%")                
             return
         elif (x>330 and x<400 and y>395 and y<453 and current_screen==SCREEN_MENU):
             VOLUME=VOLUME-3
@@ -680,7 +728,7 @@ def MouseHandler(event, x, y, flags, param):
             else:
                 os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/volumedown.wav &")
             os.system("echo \"" + str(VOLUME) + "\" > /home/pi/Ghost-Catcher-Cam/config/volume.cfg &")
-            os.system("amixer -q set Headphone " + str(VOLUME) + "%")
+            os.system("amixer -q set Master " + str(VOLUME) + "%")
             return
         else:
             # Handle a tap in a region on a screen that had no response
@@ -708,6 +756,7 @@ current_screen=SCREEN_MENU
 
 # Seed a random object with the current time
 random.seed()
+shuffle() #randomizes the sequence of songs so it doesn't play the same one twice until all are played once
 
 # Set Display Brightness to maximum
 os.system("sudo chmod a+rw /sys/class/backlight/soc\:backlight/brightness")
@@ -722,7 +771,7 @@ cv2.setMouseCallback(WINDOW_NAME, MouseHandler)
 
 # Play the startup sound
 GetVolume()
-os.system("amixer -q set Headphone " + str(VOLUME) + "%")
+os.system("amixer -q set Master " + str(VOLUME) + "%")
 os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/331620__hykenfreak__spooky-sucking-air.wav &")
 
 # Initialize the camera and grab a reference to the raw camera capture
