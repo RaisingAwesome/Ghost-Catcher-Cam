@@ -241,7 +241,11 @@ def StreamIt():
             cv2.rectangle(img,(320,410),(412,470),(0,0,0),-1)
             cv2.rectangle(img,(430,410),(563,470),(0,0,0),-1)
 
-            cv2.rectangle(img,(32,338),(197,415),(0,0,0),-1)
+            cv2.rectangle(img,(39,402),(83,417),(0,0,0),-1)
+            cv2.rectangle(img,(150,398),(190,417),(0,0,0),-1)
+            cv2.ellipse(img, ( 115, 398 ), ( 53, 40 ), 0, 180, 360, ( 0, 0, 0 ), 40, -1 )
+ #83 was my original radius
+
 
 
         img = cv2.addWeighted(img,1.0,hud,1.0,0)
@@ -281,7 +285,7 @@ def StreamIt():
         if (not DETECTION_COUNTDOWN):
             tempx=int(114 + 60*(math.sin(math.radians(myangle))))
             tempy=int(420 - 60*(math.cos(math.radians(myangle))))
-            img = cv2.line(img, (tempx,tempy), (114,423), (0, 0, 0), 2)
+            img = cv2.line(img, (tempx,tempy), (114,423), (0, 0, 0), cv2.LINE_AA)
             playGeiger()
 
         cv2.putText(img, str(ACTIVITY_COUNT), (635, 53), cv2.FONT_HERSHEY_SIMPLEX, .9, (0, 0, 0), 4, cv2.LINE_AA)
