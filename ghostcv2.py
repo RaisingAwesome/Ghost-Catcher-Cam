@@ -104,18 +104,43 @@ def DetectObject():
                 my_random=random.randrange(8)
                 os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/spooky_sound" + str(my_random) + ".wav &")
                 for (x,y,w,h) in faces:
-                    center = (x + w//2, y + h//2)
-                    #head
-                    img = cv2.ellipse(img, center, (w//2, h//2), 0, 0, 360, (0, 0, 255), 4)
-                    #body
-                    img = cv2.line(img, (x+w//2,y+h), (x+w//2,y+h*2), (0, 155, 155), 1)
-                    #Left arm
-                    img = cv2.line(img, (x-w//3,int(y+(h*1.5))), (x+w//2,int(y+(h*1.25))), (0, 155, 155), 1)
-                    #Right arm
-                    img = cv2.line(img, (x+w//2,int(y+(h*1.25))), (int(x+w+w//3),int(y+h*1.8)), (0, 155, 155), 1)
+                    DrawBody(x,y,w,h,img)
+
+def DrawBody(x,y,w,h,img):
+    center = (x + w//2, y + h//2)
+    #head
+    img = cv2.ellipse(img, center, (w//3, h//2), 0, 0, 360, (0, 175, 175), 4)
+    #body
+    img = cv2.line(img, (x+w//2,y+h), (x+w//2,y+h*2), (0, 155, 155), 1)
+    DrawLeftArm(x,y,w,h,img,(random.randrange(100)-60));
+    DrawRightArm(x,y,w,h,img,(random.randrange(110)-60));
+
+def DrawLeftArm(x,y,w,h,img,angle):
+    #Left Arm
+    l=2*w//3 #arms length
+    x=x+w//2 #point of reference of triangle and technically the arm pit
+    y=int(y+(1.25*h)) #y point of reference of traingle and technically the arm pit
+    a=int(l*( math.cos( math.radians(angle) )  ) ) #triangle opposite side line segment length
+    o=int(l*( math.sin( math.radians(angle) )  ) ) #triangle opposite side line segment length
+    xe=x-a #end of arm x coordinate
+    ye=y-o #end of arm y coordinate
+
+    img = cv2.line(img, (xe,ye), (x,y), (0, 155, 155), 5)
+
+def DrawRightArm(x,y,w,h,img,angle):
+    #Right Arm
+    l=2*w//3 #arms length
+    x=x+w//2 #point of reference of triangle and technically the arm pit
+    y=int(y+(1.25*h)) #y point of reference of traingle and technically the arm pit
+    a=int(l*( math.cos( math.radians(angle) )  ) ) #triangle opposite side line segment length
+    o=int(l*( math.sin( math.radians(angle) )  ) ) #triangle opposite side line segment length
+    xe=x+a #end of arm x coordinate
+    ye=y-o #end of arm y coordinate
+
+    img = cv2.line(img, (xe,ye), (x,y), (0, 155, 155), 5)
 
 def DetectFaceAgain():
-    global object_cascade, img, object_cascade, START_FACE_DETECTED, MOTION_DETECTED
+    global object_cascade, img
 
     frame_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     frame_gray = cv2.equalizeHist(frame_gray)
@@ -123,11 +148,7 @@ def DetectFaceAgain():
     faces = object_cascade.detectMultiScale(frame_gray)
     if len(faces)>0:
         for (x,y,w,h) in faces:
-            center = (x + w//2, y + h//2)
-            img = cv2.ellipse(img, center, (w//2, h//2), 0, 0, 360, (40, 40, 40), 2)
-            img = cv2.line(img, (x+w//2,y+h), (x+w//2,y+h*2), (40, 40, 40), 1)
-            img = cv2.line(img, (x-w//3,int(y+(h*1.5))), (x+w//2,int(y+(h*1.25))), (40, 40, 40), 1)
-            img = cv2.line(img, (x+w//2,int(y+(h*1.25))), (int(x+w+w//3),int(y+h*1.8)), (40, 40, 40), 1)
+            DrawBody(x,y,w,h,img)
 
 def DetectMotion(gray):
     # Modified version of https://github.com/methylDragon/opencv-motion-detector/blob/master/Motion%20Detector.py
@@ -241,17 +262,18 @@ def StreamIt():
         # grab the raw NumPy array representing the image, then initialize the timestamp
     	# and occupied/unoccupied text
         img = frame.array
-        if not SCANNING and not DETECTION_MODE:
-            cv2.rectangle(img,(320,410),(412,470),(0,0,0),-1)
-            cv2.rectangle(img,(430,410),(563,470),(0,0,0),-1)
+        if not FACE_DETECTED: # did this to speed up processing during face detection
+            if not SCANNING and not DETECTION_MODE:
+                cv2.rectangle(img,(320,410),(412,470),(0,0,0),-1)
+                cv2.rectangle(img,(430,410),(563,470),(0,0,0),-1)
 
-            cv2.rectangle(img,(39,402),(83,417),(0,0,0),-1)
-            cv2.rectangle(img,(150,398),(190,417),(0,0,0),-1)
-            cv2.ellipse(img, ( 115, 398 ), ( 53, 40 ), 0, 180, 360, ( 0, 0, 0 ), 40, -1 )
+                cv2.rectangle(img,(39,402),(83,417),(0,0,0),-1)
+                cv2.rectangle(img,(150,398),(190,417),(0,0,0),-1)
+                cv2.ellipse(img, ( 115, 398 ), ( 53, 40 ), 0, 180, 360, ( 0, 0, 0 ), 40, -1 )
 
-        img = cv2.addWeighted(img,1.0,hud,1.0,0)
-        cv2.rectangle(img,(644,417),(692,433),(0,255,0),-1)
-        cv2.rectangle(img,(644,437),(692,453),(0,255,0),-1)
+            img = cv2.addWeighted(img,1.0,hud,1.0,0)
+            cv2.rectangle(img,(644,417),(692,433),(0,255,0),-1)
+            cv2.rectangle(img,(644,437),(692,453),(0,255,0),-1)
 
         if DETECTION_MODE:
             if not FACE_DETECTED:
@@ -267,23 +289,25 @@ def StreamIt():
                     face_thread.start()
                     ACTIVITY_COUNT=ACTIVITY_COUNT + 1
             elif FACE_DETECTED:
-                DetectFaceAgain()
-                cv2.putText(img, 'Anomaly', (180, 454), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 4, cv2.LINE_AA)
-            else:
+                DetectFaceAgain() # this approach keeps the camera fast until something is detected
+
+            if geiger_duration==0: # Prevents overwriting the word Presence
                 cv2.putText(img, 'Sensing', (180, 454), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2, cv2.LINE_AA)
-        else:
+        elif geiger_duration==0:
             cv2.putText(img, 'Normal', (180, 454), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
-       
-        tempangle=-85
-        if (geiger_duration>0):
-            tempangle=45+random.randrange(40)
 
-        if myangle>tempangle:
-            myangle=myangle-(10/(1+random.randrange(5)))
-        else:
-            myangle=myangle+(10/(1+random.randrange(5)))
+        tempangle=-85 # intialize the temp angle variable
 
-        if (not DETECTION_COUNTDOWN):
+        if (not DETECTION_COUNTDOWN and not FACE_DETECTED):
+            if (geiger_duration>0): # this correlates with the geiger sound still playing
+                tempangle=45+random.randrange(40)
+                cv2.putText(img, 'Presence', (177, 454), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 4, cv2.LINE_AA)
+
+            if myangle>tempangle:
+                myangle=myangle-(10/(1+random.randrange(5)))
+            else:
+                myangle=myangle+(10/(1+random.randrange(5)))
+
             tempx=int(114 + 60*(math.sin(math.radians(myangle))))
             tempy=int(420 - 60*(math.cos(math.radians(myangle))))
             the_red=0
@@ -295,18 +319,16 @@ def StreamIt():
                 the_red=255
                 the_blue=255*((90-myangle)/90 )
             img = cv2.line(img, (tempx,tempy), (114,423), (0, the_blue, the_red), 8, cv2.LINE_AA)
+
             playGeiger()
 
-        cv2.putText(img, str(ACTIVITY_COUNT), (635, 53), cv2.FONT_HERSHEY_SIMPLEX, .9, (0, 0, 0), 4, cv2.LINE_AA)
-        cv2.putText(img, str(ACTIVITY_COUNT), (635, 53), cv2.FONT_HERSHEY_SIMPLEX, .9, (255, 255, 255), 2, cv2.LINE_AA)
-        cv2.putText(img, theTemp, (170, 53), cv2.FONT_HERSHEY_SIMPLEX, .9, (0, 0, 0), 4, cv2.LINE_AA)
-        cv2.putText(img, theTemp, (170, 53), cv2.FONT_HERSHEY_SIMPLEX, .9, (255, 255, 255), 2, cv2.LINE_AA)
-        cv2.putText(img, time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), (210,20),cv2.FONT_HERSHEY_SIMPLEX, .9, (255, 255, 255), 2, cv2.LINE_AA)
+        if not FACE_DETECTED: # did this to reduce processing time
+            cv2.putText(img, str(ACTIVITY_COUNT), (635, 53), cv2.FONT_HERSHEY_SIMPLEX, .9, (0, 0, 0), 4, cv2.LINE_AA)
+            cv2.putText(img, str(ACTIVITY_COUNT), (635, 53), cv2.FONT_HERSHEY_SIMPLEX, .9, (255, 255, 255), 2, cv2.LINE_AA)
+            cv2.putText(img, theTemp, (170, 53), cv2.FONT_HERSHEY_SIMPLEX, .9, (0, 0, 0), 4, cv2.LINE_AA)
+            cv2.putText(img, theTemp, (170, 53), cv2.FONT_HERSHEY_SIMPLEX, .9, (255, 255, 255), 2, cv2.LINE_AA)
+            cv2.putText(img, time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), (210,20),cv2.FONT_HERSHEY_SIMPLEX, .9, (255, 255, 255), 2, cv2.LINE_AA)
 
-        if FACE_DETECTED:
-            # Update the Audio Graphic after the HUD is displayed; otherwise, the white
-            # blocks of the HUD would go over the top of the audioGraphic.
-            UpdateAudioGraphic()
         if SCANNING:
             cv2.putText(img, "Frequency Scanning", (40, 150), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 6, cv2.LINE_AA)
             UpdateAudioGraphic()
