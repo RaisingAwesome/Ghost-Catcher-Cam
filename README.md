@@ -39,9 +39,16 @@ c.  Get rid of the Trash can.  Click the "Start" button, then Preferences-->Appe
 ### 2a.  Prepare an Uctronics Display:
 + This is an alternate, more afordable display with better specifications.  The only downside is that it shows a bootup splash screen that is annoying.
 
-     https://github.com/UCTRONICS/UCTRONICS_LCD35_RPI
+     https://github.com/UCTRONICS/UCTRONICS_HSLCD35
+     
      wget https://raw.githubusercontent.com/UCTRONICS/UCTRONICS_LCD35_RPI/master/install
      
++ After you do the wget, follow their instructions.  Their is a chance that your Raspberry Pi OS image is not updated on their git hub.  You will know because there will be an early error message that the "cp" failed.  If that happens find their newest driver under the Raspbian/usr directory of the package and copy it as such:
+
+     cp /Raspbian/usr/5.4.79-v7l+/uctronics-hslcd35-overlay.dtb /boot/overlays/uctronics-hslcd35.dtbo
+     
+     sudo ./UCTRONICS_HSLCD35/Raspbian/UCTRONICS_HSLCD35_SHOW
+
 + After you have the screen working, use the desktop Preferences->Display settings to set the display to 780 and checkmark overscan.  This will allow the display to scale the screen and the images fit correctly.  The overscan will eliminate a black bar all the way around the image in 780 mode.  If it doesn't work, in the terminal do a sudo rasp-config and find the overscan setting and turn it on there.
 
 ### 3.  Hide the Mouse Pointer:
