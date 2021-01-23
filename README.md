@@ -36,6 +36,14 @@ c.  Get rid of the Trash can.  Click the "Start" button, then Preferences-->Appe
 
 + After the reboot, you should be done with the setup.  Don't worry about the SLD2.0 issue it talks about in PyGame tips.  You won't use PyGame for your GUI.  Also, You shouldn't need to calibrate, but can follow there instructions if you find it off.
   
+### 2a.  Prepare an Uctronics Display:
++ This is an alternate, more afordable display with better specifications.  The only downside is that it shows a bootup splash screen that is annoying.
+
+     https://github.com/UCTRONICS/UCTRONICS_LCD35_RPI
+     wget https://raw.githubusercontent.com/UCTRONICS/UCTRONICS_LCD35_RPI/master/install
+     
++ After you have the screen working, use the desktop Preferences->Display settings to set the display to 780 and checkmark overscan.  This will allow the display to scale the screen and the images fit correctly.  The overscan will eliminate a black bar all the way around the image in 780 mode.  If it doesn't work, in the terminal do a sudo rasp-config and find the overscan setting and turn it on there.
+
 ### 3.  Hide the Mouse Pointer:
 
 For a touch screen GUI, a mouse pointer popping up looks goofy.  So, to get rid of it use the text editor nano to open the following file and then put the second line under the commented #xserver-command=X line in the [Seat:*] section.  Using -s 0 dpms will prevent the screen from going blank if not touched for a while.  Using -s 5 dpms shuts it off after 5 minutes.
