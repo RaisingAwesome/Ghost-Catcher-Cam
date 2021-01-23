@@ -105,9 +105,13 @@ def DetectObject():
                 os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/spooky_sound" + str(my_random) + ".wav &")
                 for (x,y,w,h) in faces:
                     center = (x + w//2, y + h//2)
+                    #head
                     img = cv2.ellipse(img, center, (w//2, h//2), 0, 0, 360, (0, 0, 255), 4)
+                    #body
                     img = cv2.line(img, (x+w//2,y+h), (x+w//2,y+h*2), (0, 155, 155), 1)
+                    #Left arm
                     img = cv2.line(img, (x-w//3,int(y+(h*1.5))), (x+w//2,int(y+(h*1.25))), (0, 155, 155), 1)
+                    #Right arm
                     img = cv2.line(img, (x+w//2,int(y+(h*1.25))), (int(x+w+w//3),int(y+h*1.8)), (0, 155, 155), 1)
 
 def DetectFaceAgain():
@@ -244,9 +248,6 @@ def StreamIt():
             cv2.rectangle(img,(39,402),(83,417),(0,0,0),-1)
             cv2.rectangle(img,(150,398),(190,417),(0,0,0),-1)
             cv2.ellipse(img, ( 115, 398 ), ( 53, 40 ), 0, 180, 360, ( 0, 0, 0 ), 40, -1 )
- #83 was my original radius
-
-
 
         img = cv2.addWeighted(img,1.0,hud,1.0,0)
         cv2.rectangle(img,(644,417),(692,433),(0,255,0),-1)
@@ -285,7 +286,15 @@ def StreamIt():
         if (not DETECTION_COUNTDOWN):
             tempx=int(114 + 60*(math.sin(math.radians(myangle))))
             tempy=int(420 - 60*(math.cos(math.radians(myangle))))
-            img = cv2.line(img, (tempx,tempy), (114,423), (0, 0, 0), cv2.LINE_AA)
+            the_red=0
+            the_blue=0
+            if (myangle+50>0 and myangle<=55):
+                the_blue=255*((myangle+50)/105)
+                the_red=255*((myangle+50)/105)
+            if (myangle>55):
+                the_red=255
+                the_blue=255*((90-myangle)/90 )
+            img = cv2.line(img, (tempx,tempy), (114,423), (0, the_blue, the_red), 8, cv2.LINE_AA)
             playGeiger()
 
         cv2.putText(img, str(ACTIVITY_COUNT), (635, 53), cv2.FONT_HERSHEY_SIMPLEX, .9, (0, 0, 0), 4, cv2.LINE_AA)
@@ -424,9 +433,9 @@ def PlayScanning():
     global myangle
 
     dice=0
-    if myangle>44 and myangle<60:
+    if myangle>25 and myangle<55:
         dice=random.randrange(2)
-    elif myangle>=61:
+    elif myangle>=55:
         dice=1
     else:
         dice=random.randrange(8)
@@ -434,7 +443,7 @@ def PlayScanning():
     if (dice==1):
         delay=2 + random.randrange(8)
 
-        if myangle<60:
+        if myangle<55:
             os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/static.wav &")
         else:
             os.system("aplay -q -d " + str(delay) + " /home/pi/Ghost-Catcher-Cam/sounds/static.wav &")
@@ -674,14 +683,21 @@ def MouseHandler(event, x, y, flags, param):
                 current_screen=2
                 HideMouse()
                 return
-            elif current_screen==1: 
+            elif current_screen==1:
                 # Handle confirmed shutdown
                 os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/shutdown.wav &")
                 os.system("( sleep 5 ; sudo shutdown -h now --no-wall ) &")
                 img = cv2.imread('/home/pi/Ghost-Catcher-Cam/images/exit.png',1)
                 cv2.imshow(WINDOW_NAME,img)
                 k=cv2.waitKey(4000)
-                os.system("sudo sh -c 'echo \"0\" > /sys/class/backlight/soc\:backlight/brightness'")
+                try:
+                    f = open("/sys/class/backlight/soc\:backlight/brightness","r")
+                except IOError:
+                    print ("Not an Adafruit Screen")
+                else:
+                    f.close()
+                    os.system("sudo sh -c 'echo \"0\" > /sys/class/backlight/soc\:backlight/brightness'")
+
                 exit()
             elif current_screen==2: #handle config youtube confirmed
                 ConfigYouTube()
@@ -766,8 +782,14 @@ random.seed()
 shuffle() #randomizes the sequence of songs so it doesn't play the same one twice until all are played once
 
 # Set Display Brightness to maximum
-os.system("sudo chmod a+rw /sys/class/backlight/soc\:backlight/brightness")
-os.system("sudo sh -c 'echo \"1\" > /sys/class/backlight/soc\:backlight/brightness'")
+try:
+    f = open("/sys/class/backlight/soc\:backlight/brightness","r")
+except IOError:
+    print ("Not an Adafruit Screen")
+else:
+    f.close()
+    os.system("sudo chmod a+rw /sys/class/backlight/soc\:backlight/brightness")
+    os.system("sudo sh -c 'echo \"1\" > /sys/class/backlight/soc\:backlight/brightness'")
 
 # Setup the OpenCV driven GUI window and mouse callback routine
 cv2.namedWindow(WINDOW_NAME,0)
