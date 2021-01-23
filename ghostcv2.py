@@ -241,6 +241,9 @@ def StreamIt():
             cv2.rectangle(img,(320,410),(412,470),(0,0,0),-1)
             cv2.rectangle(img,(430,410),(563,470),(0,0,0),-1)
 
+            cv2.rectangle(img,(32,338),(197,415),(0,0,0),-1)
+
+
         img = cv2.addWeighted(img,1.0,hud,1.0,0)
         cv2.rectangle(img,(644,417),(692,433),(0,255,0),-1)
         cv2.rectangle(img,(644,437),(692,453),(0,255,0),-1)
