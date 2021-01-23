@@ -712,12 +712,9 @@ def MouseHandler(event, x, y, flags, param):
                 img = cv2.imread('/home/pi/Ghost-Catcher-Cam/images/exit.png',1)
                 cv2.imshow(WINDOW_NAME,img)
                 k=cv2.waitKey(4000)
-                try:
-                    f = open("/sys/class/backlight/soc\:backlight/brightness","r")
-                except IOError:
+                if not os.path.exists('/sys/class/backlight'):
                     print ("Not an Adafruit Screen")
                 else:
-                    f.close()
                     os.system("sudo sh -c 'echo \"0\" > /sys/class/backlight/soc\:backlight/brightness'")
 
                 exit()
@@ -804,12 +801,9 @@ random.seed()
 shuffle() #randomizes the sequence of songs so it doesn't play the same one twice until all are played once
 
 # Set Display Brightness to maximum
-try:
-    f = open("/sys/class/backlight/soc\:backlight/brightness","r")
-except IOError:
+if not os.path.exists('/sys/class/backlight'):
     print ("Not an Adafruit Screen")
 else:
-    f.close()
     os.system("sudo chmod a+rw /sys/class/backlight/soc\:backlight/brightness")
     os.system("sudo sh -c 'echo \"1\" > /sys/class/backlight/soc\:backlight/brightness'")
 
