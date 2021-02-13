@@ -24,7 +24,7 @@ upstairs
 divine
 black
 cold
-up-to-no-good
+baby
 holy
 phantasmal
 direful
@@ -53,6 +53,7 @@ offending
 weird
 reprehensible
 dark
+light. off.
 frightful
 alarming
 nauseating
@@ -186,6 +187,7 @@ wretched
 vile
 ominous
 stiff
+erase you
 departed
 godawful
 next to you

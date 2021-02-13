@@ -33,6 +33,7 @@ START_DETECTION_MODE=False
 DETECTION_MODE=False
 DETECTION_COUNTDOWN=False
 ACTIVITY_COUNT=0
+MATCH=100 #used to show certainty of audio detected
 VOLUME=70
 FRAMES_TO_PERSIST=10
 MIN_SIZE_FOR_MOVEMENT = 2000
@@ -47,6 +48,7 @@ USB_CONNECTED=True
 RECORDING=True
 myangle=-85
 geiger_duration=0
+DETECTED_WORDS=""
 
 TOTAL_RADIO_FILES=0 # This will be dynamically set when it reads words.txt
 SOUND_TRACK=0
@@ -213,7 +215,7 @@ def StreamIt():
     global current_screen, WINDOW_NAME, img, camera, rawCapture, SCREEN_MENU, STREAMING
     global START_SCANNING, SCANNING, DETECTION_MODE, ACTIVITY_COUNT, START_FACE_DETECTED
     global FACE_DETECTED, ACTIVITY_COUNT, start_time, DETECTION_COUNTDOWN, hud
-    global ALLOW_BEEP, RECORDING, myangle
+    global ALLOW_BEEP, RECORDING, myangle, DETECTED_WORDS, MATCH
     start_time=time.time()
 
     current_screen=5
@@ -332,6 +334,16 @@ def StreamIt():
         if SCANNING:
             cv2.putText(img, "Frequency Scanning", (40, 150), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 6, cv2.LINE_AA)
             UpdateAudioGraphic()
+            if (DETECTED_WORDS!=""):
+                wx=random.randrange(5) #used to make it wiggle like creept text credits
+                wy=random.randrange(5)
+                wg=0 #used to make it turn white 20% of the time to make it creepy text
+                wb=0
+                if wx==4:
+                    wg=255
+                    wb=255
+                cv2.putText(img, "Voice Match: " + str(MATCH) + "%",(315, 427), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
+                cv2.putText(img, DETECTED_WORDS, (315+wx, 454+wy), cv2.FONT_HERSHEY_COMPLEX, 1, (wb, wg, 255), 2, cv2.LINE_AA)
 
             time_left=13-seconds_between(start_time,time.time())
             if time_left>9:
@@ -452,7 +464,7 @@ def PlayScanning():
     # Play the radio static.  Roll the die to
     # determine if a sound will be played or just play it if they scanned when the geiger was >65.
 
-    global myangle
+    global myangle, DETECTED_WORDS
 
     dice=0
     if myangle>25 and myangle<55:
@@ -461,7 +473,7 @@ def PlayScanning():
         dice=1
     else:
         dice=random.randrange(8)
-    dice=1
+    #dice=1
     if (dice==1):
         delay=2 + random.randrange(8)
         os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/static.wav &")
@@ -470,22 +482,26 @@ def PlayScanning():
         t.start()
     else:
         os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/static.wav &")
+        DETECTED_WORDS=""
 
 def PlayScannedAudio():
     # Called randomly to play a random file
-    global START_PEG_AUDIO, ACTIVITY_COUNT, SOUND_TRACK, TOTAL_RADIO_FILES,the_sounds, myangle
+    global START_PEG_AUDIO, ACTIVITY_COUNT, SOUND_TRACK, TOTAL_RADIO_FILES,the_sounds, myangle,DETECTED_WORDS, MATCH
     START_PEG_AUDIO=True #Starts the EQ bar animation on the right of the screen
+    MATCH=int(myangle) # Use this to give the probability match based on when they hit it.
     myangle=88 #peg the EMF meter
     # Following line was for use with wav files but the user wanted just words.
     #os.system("(aplay -q /home/pi/Ghost-Catcher-Cam/sounds/radio/" + str(the_sounds[SOUND_TRACK]) + ".wav) & ")
+    DETECTED_WORDS=(the_sounds[SOUND_TRACK]).replace("\n","")
     Speak()
     ACTIVITY_COUNT=ACTIVITY_COUNT+1
 
 def StopScanning():
     # Used by a timer thread to end the 13 second audio
     # scan routine
-    global SCANNING, hud
+    global SCANNING, hud, DETECTED_WORDS
     SCANNING=False
+    DETECTED_WORDS=""
     hud=cv2.imread('/home/pi/Ghost-Catcher-Cam/images/hud.png')
 
 def ConfigYouTube():
