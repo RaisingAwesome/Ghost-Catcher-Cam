@@ -48,9 +48,9 @@ RECORDING=True
 myangle=-85
 geiger_duration=0
 
-TOTAL_RADIO_FILES=16
+TOTAL_RADIO_FILES=198
 SOUND_TRACK=0
-the_sounds=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
+the_sounds=""
 
 last_detect_time=time.time()
 next_geiger_time=time.time()+60
@@ -464,11 +464,7 @@ def PlayScanning():
 
     if (dice==1):
         delay=2 + random.randrange(8)
-
-        if myangle<55:
-            os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/static.wav &")
-        else:
-            os.system("aplay -q -d " + str(delay) + " /home/pi/Ghost-Catcher-Cam/sounds/static.wav &")
+        os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/static.wav &")
 
         t=threading.Timer(delay,PlayScannedAudio)
         t.start()
@@ -480,11 +476,10 @@ def PlayScannedAudio():
     global START_PEG_AUDIO, ACTIVITY_COUNT, SOUND_TRACK, TOTAL_RADIO_FILES,the_sounds, myangle
     START_PEG_AUDIO=True #Starts the EQ bar animation on the right of the screen
     myangle=88 #peg the EMF meter
-    os.system("(aplay -q /home/pi/Ghost-Catcher-Cam/sounds/radio/" + str(the_sounds[SOUND_TRACK]) + ".wav) & ")
+    # Following line was for use with wav files but the user wanted just words.
+    #os.system("(aplay -q /home/pi/Ghost-Catcher-Cam/sounds/radio/" + str(the_sounds[SOUND_TRACK]) + ".wav) & ")
+    Speak()
     ACTIVITY_COUNT=ACTIVITY_COUNT+1
-    SOUND_TRACK=SOUND_TRACK+1
-    if SOUND_TRACK>=TOTAL_RADIO_FILES:
-        SOUND_TRACK=0
 
 def StopScanning():
     # Used by a timer thread to end the 13 second audio
@@ -792,14 +787,38 @@ def checkForWiFi():
         WIFI_CONNECTED=True
     except:
         WIFI_CONNECTED=False
+
+def Speak():
+    global the_sounds, SOUND_TRACK, TOTAL_RADIO_FILES
+    pitch=random.randrange(70)
+    speed=random.randrange(60)
+
+    os.system("espeak -a 200 -v en-us -s " + str(speed + 50) + " -p " + str(30+pitch) + " \"" + the_sounds[SOUND_TRACK] + "\" --stdout | aplay -q &")
+    f = open("/home/pi/Ghost-Catcher-Cam/sounds/radio/current.txt", "w")
+    f.write(str(SOUND_TRACK))
+    f.close()
+    SOUND_TRACK=SOUND_TRACK+1
+    if SOUND_TRACK>=TOTAL_RADIO_FILES:
+        SOUND_TRACK=0
+
+def ReadWords():
+    global the_sounds,SOUND_TRACK,TOTAL_RADIO_FILES
+    f = open('/home/pi/Ghost-Catcher-Cam/sounds/radio/words.txt', 'r+')
+    the_sounds = [line for line in f.readlines()]
+    f.close()
+    TOTAL_RADIO_FILES=len(the_sounds)
+    f = open("/home/pi/Ghost-Catcher-Cam/sounds/radio/current.txt", "r")
+    SOUND_TRACK=int(f.read())
+    f.close()
+
 # Main
 user_tapped_exit=False
 current_screen=SCREEN_MENU
 
 # Seed a random object with the current time
 random.seed()
-shuffle() #randomizes the sequence of songs so it doesn't play the same one twice until all are played once
-
+#shuffle() #randomizes the sequence of songs so it doesn't play the same one twice until all are played once
+ReadWords()
 # Set Display Brightness to maximum
 if not os.path.exists('/sys/class/backlight'):
     print ("Not an Adafruit Screen")
