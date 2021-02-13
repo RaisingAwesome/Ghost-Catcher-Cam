@@ -2,19 +2,25 @@ awful
 disgusting
 disturbing
 eerie
+the closet
 frightening
 hideous
+next to you
 dead
 haunted
 rude
+other room
 low
 creepy
+mother
+near to you
 deceased
 defiant
 foul
 sinful
 bereftoflife
 horrid
+upstairs
 divine
 black
 cold
@@ -30,13 +36,16 @@ degrading
 strange
 threatening
 pitiful
+behind you
 gross
 spooky
+father
 gruesome
 grievous
 distasteful
 horrible
 pagan
+no more
 unearthly
 objectionable
 terrifying
@@ -49,9 +58,12 @@ alarming
 nauseating
 abusive
 nasty
+oma
 disreputable
 supernatural
 scary
+cousin
+get. out.
 corpselike
 obnoxious
 abhorrent
@@ -60,8 +72,10 @@ base
 fearful
 deadly
 shocking
+the bed
 superstitious
 annoying
+you must go
 intense
 contemptible
 beastly
@@ -76,7 +90,10 @@ ghostlike
 spectral
 terrible
 dire
+graveyard
+dad
 bad
+beside you
 disguised
 godless
 no good
@@ -86,6 +103,7 @@ illusory
 rotten
 biting
 masked
+opa
 bloody
 appalling
 dreadful
@@ -95,18 +113,24 @@ off-color
 odious
 detestable
 mean
+newphew
 insolent
 frozen
+mom
 vampiric
 spooked
 infamous
 lousy
 ghostly
+reach out
 disgraceful
 invidious
+leave here
 horrific
 cutting
 unholy
+grave
+satan
 baleful
 blasphemous
 scared
@@ -115,11 +139,17 @@ repugnant
 spiritual
 wicked
 grody
+friend
+step back
 heathen
 blood curdling
 violating
+leave this place
 filthy
+under the bed
 evil
+devil
+inside you I will become
 desecrating
 horrendous
 grisly
@@ -128,6 +158,7 @@ grim
 undead
 tragic
 icky
+son
 cheap
 loathsome
 obscene
@@ -135,6 +166,8 @@ abominable
 haunting
 menacing
 ghastly
+sit down
+midnight
 lifeless
 wraithlike
 worthless
@@ -155,17 +188,19 @@ ominous
 stiff
 departed
 godawful
+next to you
 ghoulish
 impertinent
 offensive
 sinister
 costumed
 cowardly
+run away
 crawly
 fear-inspiring
 gory
 haunting
-magical
+brother
 mischievous
 nighttime
 startled
@@ -175,9 +210,12 @@ disturbing
 eerie
 frightening
 hideous
+zombie
+go away
 dead
 haunted
 rude
+basement
 low
 creepy
 deceased
@@ -187,8 +225,10 @@ sinful
 bereftoflife
 horrid
 divine
+standing
 black
 cold
+remember
 up-to-no-good
 holy
 phantasmal
@@ -196,3 +236,4 @@ direful
 creepy
 haunted
 insane
+sister

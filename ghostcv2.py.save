@@ -48,7 +48,7 @@ RECORDING=True
 myangle=-85
 geiger_duration=0
 
-TOTAL_RADIO_FILES=0 # This will be dynamically set when it reads words.txt
+TOTAL_RADIO_FILES=198
 SOUND_TRACK=0
 the_sounds=""
 
@@ -792,41 +792,33 @@ def Speak():
     global the_sounds, SOUND_TRACK, TOTAL_RADIO_FILES
     pitch=random.randrange(70)
     speed=random.randrange(60)
-    dice=random.randrange(4) # echo probability of 1 in 4
-    echo=" 3 100 5 50 200 10" #makes an echo
-
     # 1 in 5 chance of picking a female voice which has 4 types.  Males have 7 types.  Also 1 in 5 to whisper
-    gender="+m"
-    voice=random.randrange(7)+1
     dice=random.randrange(4)
+    gender="m"
+    voice=random.randrange(7)+1
     if dice==1:
-        echo="
-    if dice==1:
-        gender="+f"
+        gender="f"
         voice=random.randrange(4)+1
     elif dice==5:
-        gender="+whisper"
+        gender="whisper"
         voice=""
     dice=random.randrange(7)
-    if dice==0:
-        accent="en-us"
-    elif dice>0 and dice<3:
-        accent="en-us"
+    if dice=0 and dice<3:
+        accent="en-us+"
     elif dice>2 and dice<5:
-        accent="ro"
+        accent="ro+"
     elif dice==5:
-        accent="en-sc"
+        accent="en-sc+"
     elif dice==6:
         accent="tr"
-    os.system("espeak -a 200 -v " + accent + gender + str(voice) +" -s " + str(speed + 50) + " -p " + str(30+pitch) + " \"" + the_sounds[SOUND_TRACK] + "\" --stdout | play -V0 - pad 0 2 reverb " + echo +" >/dev/null 2>1")
+    os.system("espeak -a 200 -v " + accent + gender + str(voice) +" -s " + str(speed + 50) + " -p " + str(30+pitch) + " \"" + the_sounds[SOUND_TRACK] + "\" --stdout | play -V0 - pad 0 2 reverb >/dev/null 2>1")
 
-    SOUND_TRACK=SOUND_TRACK+1
-    if SOUND_TRACK>=TOTAL_RADIO_FILES:
-        SOUND_TRACK=0
-    #keeps from starting over the word list each time the camera is used.
     f = open("/home/pi/Ghost-Catcher-Cam/sounds/radio/current.txt", "w")
     f.write(str(SOUND_TRACK))
     f.close()
+    SOUND_TRACK=SOUND_TRACK+1
+    if SOUND_TRACK>=TOTAL_RADIO_FILES:
+        SOUND_TRACK=0
 
 def ReadWords():
     global the_sounds,SOUND_TRACK,TOTAL_RADIO_FILES
