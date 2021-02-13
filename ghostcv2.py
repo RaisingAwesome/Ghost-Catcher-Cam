@@ -342,7 +342,7 @@ def StreamIt():
                 if wx==4:
                     wg=255
                     wb=255
-                cv2.putText(img, "Translation " + str(MATCH) + "%",(315, 395), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
+                cv2.putText(img, "Translation",(315, 395), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
                 cv2.putText(img, "Confidence: " + str(MATCH) + "%",(315, 427), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
                 cv2.putText(img, DETECTED_WORDS, (315+wx, 454+wy), cv2.FONT_HERSHEY_COMPLEX, 1, (wb, wg, 255), 2, cv2.LINE_AA)
 
