@@ -800,7 +800,7 @@ def Speak():
     voice=random.randrange(7)+1
     dice=random.randrange(4)
     if dice==1:
-        echo="
+        echo=""
     if dice==1:
         gender="+f"
         voice=random.randrange(4)+1
