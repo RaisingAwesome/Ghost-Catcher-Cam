@@ -342,7 +342,8 @@ def StreamIt():
                 if wx==4:
                     wg=255
                     wb=255
-                cv2.putText(img, "Voice Match: " + str(MATCH) + "%",(315, 427), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
+                cv2.putText(img, "Translation " + str(MATCH) + "%",(315, 395), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
+                cv2.putText(img, "Confidence: " + str(MATCH) + "%",(315, 427), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
                 cv2.putText(img, DETECTED_WORDS, (315+wx, 454+wy), cv2.FONT_HERSHEY_COMPLEX, 1, (wb, wg, 255), 2, cv2.LINE_AA)
 
             time_left=13-seconds_between(start_time,time.time())
@@ -488,7 +489,7 @@ def PlayScannedAudio():
     # Called randomly to play a random file
     global START_PEG_AUDIO, ACTIVITY_COUNT, SOUND_TRACK, TOTAL_RADIO_FILES,the_sounds, myangle,DETECTED_WORDS, MATCH
     START_PEG_AUDIO=True #Starts the EQ bar animation on the right of the screen
-    MATCH=int(myangle) # Use this to give the probability match based on when they hit it.
+    MATCH=abs(int(myangle)) # Use this to give the probability match based on when they hit it.
     myangle=88 #peg the EMF meter
     # Following line was for use with wav files but the user wanted just words.
     #os.system("(aplay -q /home/pi/Ghost-Catcher-Cam/sounds/radio/" + str(the_sounds[SOUND_TRACK]) + ".wav) & ")
