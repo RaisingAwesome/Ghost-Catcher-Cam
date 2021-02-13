@@ -70,6 +70,12 @@ Install the package that allows you to move the mouse cursor.  This is needed to
 
 #### c.  OpenCV for Python3:
       sudo apt install python3-opencv
+      
+#### d.  espeak (used to play the words.txt file)
+      sudo apt install espeak -y
+      
+#### e.  SOX (used to play output from espeak:
+      sudo apt install sox
                 
 ### 5.  Clone this Repository and Setup the Environment:
 a.  From the terminal, paste the following:
