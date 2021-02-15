@@ -184,9 +184,9 @@ Sound troubleshooting:
       amixer to ensure it is calling the sound card correctly.
 
 Fixing Boot Issues:
-+If you get it working, it's best to never do an upgrade no matter how bad you feel like doing it.
-+Often, it is the "import cv2" that is failing.  It has been known to either cause a Segmentation Fault or some .o file problem.
-+Some things to try:
++ If you get it working, it's best to never do an upgrade no matter how bad you feel like doing it.
++ Often, it is the "import cv2" that is failing.  It has been known to either cause a Segmentation Fault or some .o file problem.
++ Some things to try:
       sudo apt-get reinstall coreutils
       sudo apt-get reinstall python3-opencv2
 
