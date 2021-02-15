@@ -190,16 +190,20 @@ Fixing Boot Issues:
 
       journalctl -b
       dmesg
-+ Some things to try:
++ If you get an error message such as /usr/lib/libxxx, you can find the package name with
+
+      apt list --installed
++ Some things to try, but have never worked:
 
       sudo apt-get reinstall coreutils
       sudo apt-get reinstall python3-opencv2
-      #reinstall the display driver from adafruit
+      #also, reinstall the display driver from adafruit
 
 + Sometimes you will get this:
 
       ImportError: /usr/lib/libgdal.so.20: undefined symbol: _JN11OGRSFDriver16CreateDataSourceEPKcPPc
-
+      #do this
+      sudo apt-get reinstall libgdal20
 
 ### 9:  Good to Know Stuff
 Redirecting Command Line Output:
