@@ -174,6 +174,7 @@ If you ever need a time you want to kill the backlight to save battery, you can 
 
       sudo sh -c 'echo "0" > /sys/class/backlight/soc\:backlight/brightness'    
       
+### 8: Troubleshooting
 Sound troubleshooting:
       After updating, you might run into an error that amixer is unable to find a simple control
 
@@ -182,6 +183,15 @@ Sound troubleshooting:
       3. This will give you the name of the sound card.  Edit ghostcv2.py on the 3 lines that contain 
       amixer to ensure it is calling the sound card correctly.
 
+Fixing Boot Issues:
++If you get it working, it's best to never do an upgrade no matter how bad you feel like doing it.
++Often, it is the "import cv2" that is failing.  It has been known to either cause a Segmentation Fault or some .o file problem.
++Some things to try:
+      sudo apt-get reinstall coreutils
+      sudo apt-get reinstall python3-opencv2
+
+
+### 9:  Good to Know Stuff
 Redirecting Command Line Output:
 
       When using os.system in Python, you typically want to hide all console messages by sending them to null.  
@@ -191,3 +201,5 @@ Redirecting Command Line Output:
       2>/dev/null
       
 Measure Temp:  vcgencmd measure_temp
+
+
