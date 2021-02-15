@@ -835,7 +835,7 @@ def Speak():
         accent="en-sc"
     elif dice==6:
         accent="tr"
-    os.system("espeak -a 200 -v " + accent + gender + str(voice) +" -s " + str(speed + 50) + " -p " + str(30+pitch) + " \"" + the_sounds[SOUND_TRACK] + "\" --stdout | play -V0 - pad 0 2 reverb " + echo +" >/dev/null 2>1")
+    os.system("espeak -a 200 -v " + accent + gender + str(voice) +" -s " + str(speed + 50) + " -p " + str(30+pitch) + " \"" + the_sounds[SOUND_TRACK] + "\" --stdout | play -V0 - pad 0 2 reverb " + echo +" 2>/dev/null")
 
     SOUND_TRACK=SOUND_TRACK+1
     if SOUND_TRACK>=TOTAL_RADIO_FILES:
