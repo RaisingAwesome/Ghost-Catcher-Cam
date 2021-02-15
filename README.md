@@ -189,10 +189,16 @@ Fixing Boot Issues:
 + You can look for errors on bootup with:  
 
       journalctl -b
+      dmesg
 + Some things to try:
 
       sudo apt-get reinstall coreutils
       sudo apt-get reinstall python3-opencv2
+      #reinstall the display driver from adafruit
+
++ Sometimes you will get this:
+
+      ImportError: /usr/lib/libgdal.so.20: undefined symbol: _JN11OGRSFDriver16CreateDataSourceEPKcPPc
 
 
 ### 9:  Good to Know Stuff
@@ -206,4 +212,4 @@ Redirecting Command Line Output:
       
 Measure Temp:  vcgencmd measure_temp
 
-
+apt list --installed #shows installed packages
