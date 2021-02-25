@@ -155,11 +155,11 @@ You first have to set permissions on the runner file:
       chmod +777 runner.sh #this is the main runner of the python script
       chmod +777 checker.sh #this will ensure it boots successfully and will reboot if not
       
-+Then, set a Crontab entry so it runs at startup:
+Then, set a Crontab entry so it runs at startup:
 
       crontab -e
 
-+Type the following at the bottom of the page:
+Type the following at the bottom of the page:
 
       @reboot sleep 10 && /home/pi/Ghost-Catcher-Cam/runner.sh &  #increase the sleep zero if it doesn't run to give it time to boot up more dependancies.  The sleep parameter is in seconds.
       @reboot sleep 30 && /home/pi/Ghost-Catcher-Cam/checker.sh & #this will reboot if python isn't running after 30 seconds.
