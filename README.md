@@ -210,7 +210,9 @@ Fixing Boot Issues:
 
 +     For info, to stream the entire Raspberry Pi display, this work:
 
-      ffmpeg -f lavfi -i anullsrc -f x11grab -framerate 30 -video_size 720x480 -i :0.0 -f flv -b:v 1024K -framerate 30 -s 854x480 rtmp://a.rtmp.youtube.com/live2/streamkey
+      ffmpeg -f pulse -i alsa_output.platform-bcm2835_audio.analog-stereo.monitor -f x11grab -framerate 30 -video_size 720x480 -i :0.0 -f flv -b:v 1024K -framerate 30 -s 854x480 rtmp://a.rtmp.youtube.com/live2/streamkey
+      
+      The alsa_output was found with ffmpeg -sources pulse
 
 This approach is used by the ghostcv2.py program.
 +     If you ever need a time you want to kill the backlight to save battery, you can do this:
