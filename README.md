@@ -164,16 +164,6 @@ You first have to set permissions on the runner file:
       @reboot sleep 10 && /home/pi/Ghost-Catcher-Cam/runner.sh &  #increase the sleep zero if it doesn't run to give it time to boot up more dependancies.  The sleep parameter is in seconds.
       @reboot sleep 30 && /home/pi/Ghost-Catcher-Cam/checker.sh & #this will reboot if python isn't running after 30 seconds.
 
-For info, to stream the entire Raspberry Pi display, this work:
-
-      ffmpeg -f lavfi -i anullsrc -f x11grab -framerate 30 -video_size 720x480 -i :0.0 -f flv -b:v 1024K -framerate 30 -s 854x480 rtmp://a.rtmp.youtube.com/live2/streamkey
-
-This approach is used by the ghostcv2.py program.
-
-If you ever need a time you want to kill the backlight to save battery, you can do this:
-
-      sudo sh -c 'echo "0" > /sys/class/backlight/soc\:backlight/brightness'    
-      
 ### 8: Troubleshooting
 Sound troubleshooting:
       After updating, you might run into an error that amixer is unable to find a simple control
@@ -206,7 +196,7 @@ Fixing Boot Issues:
       sudo apt-get reinstall libgdal20
 
 ### 9:  Good to Know Stuff
-Redirecting Command Line Output:
++ Redirecting Command Line Output:
 
       When using os.system in Python, you typically want to hide all console messages by sending them to null.  
       
@@ -214,6 +204,16 @@ Redirecting Command Line Output:
       
       2>/dev/null
       
-Measure Temp:  vcgencmd measure_temp
++     Measure Temp:  vcgencmd measure_temp
 
-apt list --installed #shows installed packages
++     apt list --installed #shows installed packages
+
++     For info, to stream the entire Raspberry Pi display, this work:
+
+      ffmpeg -f lavfi -i anullsrc -f x11grab -framerate 30 -video_size 720x480 -i :0.0 -f flv -b:v 1024K -framerate 30 -s 854x480 rtmp://a.rtmp.youtube.com/live2/streamkey
+
+This approach is used by the ghostcv2.py program.
++     If you ever need a time you want to kill the backlight to save battery, you can do this:
+
+      sudo sh -c 'echo "0" > /sys/class/backlight/soc\:backlight/brightness'    
+      
