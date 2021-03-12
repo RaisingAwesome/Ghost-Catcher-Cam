@@ -248,11 +248,11 @@ def StreamIt():
     # Start streaming to YouTube with ffmpeg
     the_filename=""
     if (not RECORDING):
-         streamkey="</home/pi/Ghost-Catcher-Cam/ramdisk/stop /usr/bin/ffmpeg -v quiet -f lavfi -i anullsrc -f x11grab -framerate 30 -video_size 720x480 -i :0.0 -f flv -s 854x480 -b:v 1024K -framerate 30 rtmp://a.rtmp.youtube.com/live2/" + streamkey + " &"
+         streamkey="</home/pi/Ghost-Catcher-Cam/ramdisk/stop /usr/bin/ffmpeg -v quiet -f pulse -i alsa_output.platform-bcm2835_audio.analog-stereo.monitor -f x11grab -framerate 30 -video_size 720x480 -i :0.0 -f flv -s 854x480 -b:v 1024K -framerate 30 rtmp://a.rtmp.youtube.com/live2/" + streamkey + " &"
     else:
          now = datetime.datetime.now()
          the_filename = "video-" + str(now.hour) + "-" + str(now.minute) + "-" + str(now.second) + ".avi"
-         streamkey="</home/pi/Ghost-Catcher-Cam/ramdisk/stop /usr/bin/ffmpeg -v quiet -f lavfi -i anullsrc -f x11grab -framerate 30 -video_size 720x480 -i :0.0 -b:v 1M /home/pi/usbdrv/" + the_filename + " &"
+         streamkey="</home/pi/Ghost-Catcher-Cam/ramdisk/stop /usr/bin/ffmpeg -v quiet -f pulse -i alsa_output.platform-bcm2835_audio.analog-stereo.monitor -f x11grab -framerate 30 -video_size 720x480 -i :0.0 -b:v 1M /home/pi/usbdrv/" + the_filename + " &"
     os.system(streamkey)
 
     HideMouse()
@@ -800,7 +800,7 @@ def GetVolume():
 def checkForWiFi():
     global WIFI_CONNECTED
     try:
-        temp=socket.gethostbyaddr("192.168.1.176")
+        temp=socket.gethostbyaddr("8.8.8.8")
         WIFI_CONNECTED=True
     except:
         WIFI_CONNECTED=False
