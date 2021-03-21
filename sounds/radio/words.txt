@@ -11,6 +11,7 @@ satan
 tracy
 cabinets
 monstrous
+stain
 cowardly
 frightening
 ignominious
@@ -22,7 +23,7 @@ yes
 sister
 midnight
 tracy
-nasty
+injured
 ominous
 terrible
 menacing
@@ -256,6 +257,7 @@ brother
 repellent
 unearthly
 divine
+see you
 disgust
 abusive
 deceased
