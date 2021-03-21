@@ -9,6 +9,7 @@ scared
 sit down
 satan
 tracy
+cabinets
 monstrous
 cowardly
 frightening
@@ -89,7 +90,7 @@ ungodly
 spooked
 eerie
 insolent
-beside 
+beside
 horrid
 no
 indecent
@@ -101,6 +102,7 @@ closet
 deathlike
 supernatural
 repugnant
+fall
 violating
 gruesome
 dark
@@ -112,8 +114,9 @@ disguised
 no good
 sinister
 nightmare
+waiting
 haunting
-get. 
+children
 wraithlike
 no
 spiritual
@@ -161,6 +164,7 @@ loathsome
 disrupted
 glutton
 low
+sleeping
 injured
 macabre
 buried
@@ -231,6 +235,7 @@ terrifying
 hidden
 tremble
 deceived
+door
 minacious
 low-life
 haunted
@@ -239,18 +244,19 @@ nauseating
 bone-chilling
 moonlit
 yes
-vampire
+virus
 corpselike
 frighten
 intense
 bridge
 wretched
 black
+light
 brother
 repellent
 unearthly
 divine
-disgusting
+disgust
 abusive
 deceased
 ghostly
