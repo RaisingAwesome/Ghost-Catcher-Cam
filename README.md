@@ -84,12 +84,12 @@ a.  From the terminal, paste the following:
       git clone https://github.com/RaisingAwesome/Ghost-Catcher-Cam
       cd Ghost-Catcher-Cam
       sudo chmod +777 runner.sh
-      ./runner.sh #to run itsudo apt install python3-opencv
+      ./runner.sh #to run it
 
 b.  Copy the bootup splash screen.  You can change it by making a .png image with dimensions 480x320.  This post tells you how to get rid of the stuff at the bottom of the screen:  https://www.thedigitalpictureframe.com/customize-your-raspberry-pi-splash-screen-raspbian-stretch-april-2019-version/.  It is possible that it boots so fast that you don't get to see it.  In turn, you may want to set this as the Raspberry Pi Desktop background instead.   
 
       cd Ghost-Catcher-Cam
-      sudo cp splash.png /usr/share/plymouth/themes/pix/
+      sudo cp images/splash.png /usr/share/plymouth/themes/pix/
       sudo reboot
 
 c.  Hide your Taskbar.  To do this, open a terminal and edit the LXDE-pi/autostart file as shown here:
