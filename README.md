@@ -16,7 +16,8 @@ a.  Install the desktop version of Raspian:  https://www.raspberrypi.org/downloa
 
 b.  Open a terminal and type the following to enable the camera and SSH interface (or do this from the Desktop Menu) and the Headphone Jack
       
-      sudo raspi-config #enable the camera, SSH, Audio-->Headphones    
+      sudo raspi-config #enable the camera, SSH under the interfaces option 
+      #System Options-->Audio-->Headphones    
       
       
 c.  Get rid of the Trash can and mounted disks.  Click the "Start" button, then Preferences-->Appearance Settings-->Wastebasket/Mounted Disks
