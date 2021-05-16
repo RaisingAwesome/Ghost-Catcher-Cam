@@ -14,15 +14,19 @@ a.  Install the desktop version of Raspian:  https://www.raspberrypi.org/downloa
 
 + With the desktop wizard, follow the prompts to config the desktop and run updates.  Choose not to reboot.  Click on the terminal icon.
 
-b.  Open a terminal and type the following to enable the camera and SSH interface
+b.  Open a terminal and type the following to enable the camera and SSH interface (or do this from the Desktop Menu) and the Headphone Jack
       
-      sudo raspi-config #enable the camera, SSH
+      sudo raspi-config #enable the camera, SSH, Audio-->Headphones    
       
-c.  Get rid of the Trash can.  Click the "Start" button, then Preferences-->Appearance Settings-->Wastebasket
+      
+c.  Get rid of the Trash can and mounted disks.  Click the "Start" button, then Preferences-->Appearance Settings-->Wastebasket/Mounted Disks
 
 ### 2.  Install PiTFT Display Kernal per Adafuit:
 
     https://learn.adafruit.com/adafruit-pitft-3-dot-5-touch-screen-for-raspberry-pi/easy-install-2
+    
+    sudo python3 adafruit-pitft.py #don't use the parameters because it doesn't default to the options you need
+    
 + Options to select when prompted:
 
       4. PiTFT 3.5" resistive touch (320x480)
