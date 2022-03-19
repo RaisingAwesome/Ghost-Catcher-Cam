@@ -104,7 +104,7 @@ def DetectObject():
             if not FACE_DETECTED:
                 START_FACE_DETECTED=True
                 my_random=random.randrange(8)
-                os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/spooky_sound" + str(my_random) + ".wav &")
+                os.system("XDG_RUNTIME_DIR=/run/user/1000 aplay -q /home/pi/Ghost-Catcher-Cam/sounds/spooky_sound" + str(my_random) + ".wav &")
                 for (x,y,w,h) in faces:
                     DrawBody(x,y,w,h,img)
 
@@ -220,7 +220,7 @@ def StreamIt():
 
     current_screen=5
     hud=cv2.imread('/home/pi/Ghost-Catcher-Cam/images/hud.png')
-    os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/spooky_sound7.wav & ")
+    os.system("XDG_RUNTIME_DIR=/run/user/1000 aplay -q /home/pi/Ghost-Catcher-Cam/sounds/spooky_sound7.wav & ")
 
     img = cv2.imread('/home/pi/Ghost-Catcher-Cam/images/camera.png',1)
 
@@ -256,7 +256,7 @@ def StreamIt():
     os.system(streamkey)
 
     HideMouse()
-    os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/nightvision.wav & ")
+    os.system("XDG_RUNTIME_DIR=/run/user/1000 aplay -q /home/pi/Ghost-Catcher-Cam/sounds/nightvision.wav & ")
 
     # capture frames from the camera
     for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
@@ -363,7 +363,7 @@ def StreamIt():
                     cv2.putText(img, str(time_left), (330, 310), cv2.FONT_HERSHEY_SIMPLEX, 4, (0, 0, 255), 6, cv2.LINE_AA)
                 else:
                     ALLOW_BEEP=False
-                    os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/shhhh.wav &")
+                    os.system("XDG_RUNTIME_DIR=/run/user/1000 aplay -q /home/pi/Ghost-Catcher-Cam/sounds/shhhh.wav &")
                     DETECTION_COUNTDOWN=False
                     hud=cv2.imread('/home/pi/Ghost-Catcher-Cam/images/hud_scanning.png')
         cv2.imshow(WINDOW_NAME, img)
@@ -386,7 +386,7 @@ def StreamIt():
 
         if current_screen==SCREEN_MENU:
             os.system("echo 'q' >ramdisk/stop") #this simulates a keypress of the letter q which stops ffmpeg.  it's genius
-            os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/shutdown.wav &")
+            os.system("XDG_RUNTIME_DIR=/run/user/1000 aplay -q /home/pi/Ghost-Catcher-Cam/sounds/shutdown.wav &")
             # above idea came from https://stackoverflow.com/questions/9722624/how-to-stop-ffmpeg-remotely
             showGUI()
             STREAMING=False
@@ -408,7 +408,7 @@ def playGeiger():
     global next_geiger_time, geiger_duration, last_geiger_time
     if (time.time()>next_geiger_time):
        geiger_duration=random.randrange(10)+1
-       os.system("aplay -q -d " + str(geiger_duration) + " /home/pi/Ghost-Catcher-Cam/sounds/geiger" + str(random.randrange(2)) + ".wav &")
+       os.system("XDG_RUNTIME_DIR=/run/user/1000 aplay -q -d " + str(geiger_duration) + " /home/pi/Ghost-Catcher-Cam/sounds/geiger" + str(random.randrange(2)) + ".wav &")
        next_geiger_time=time.time()+30+random.randrange(60)
        last_geiger_time=time.time()
     if (time.time()-geiger_duration>last_geiger_time):
@@ -477,12 +477,12 @@ def PlayScanning():
     #dice=1
     if (dice==1):
         delay=2 + random.randrange(8)
-        os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/static.wav &")
+        os.system("XDG_RUNTIME_DIR=/run/user/1000 aplay -q /home/pi/Ghost-Catcher-Cam/sounds/static.wav &")
 
         t=threading.Timer(delay,PlayScannedAudio)
         t.start()
     else:
-        os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/static.wav &")
+        os.system("XDG_RUNTIME_DIR=/run/user/1000 aplay -q /home/pi/Ghost-Catcher-Cam/sounds/static.wav &")
         DETECTED_WORDS=""
 
 def PlayScannedAudio():
@@ -508,7 +508,7 @@ def StopScanning():
 def ConfigYouTube():
     # Routine to prompt for the Youtube Streamkey
     global img, WINDOW_NAME
-    os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/spooky_sound7.wav & ")
+    os.system("XDG_RUNTIME_DIR=/run/user/1000 aplay -q /home/pi/Ghost-Catcher-Cam/sounds/spooky_sound7.wav & ")
     img = cv2.imread('/home/pi/Ghost-Catcher-Cam/images/confirm2.png',1)
     cv2.imshow(WINDOW_NAME,img)
     k=cv2.waitKey(1)
@@ -522,7 +522,7 @@ def ConfigYouTube():
 
         my_result=os.system("DISPLAY=:0.0 zenity --title='WiFi Config' --info='Stream Set, Good Job.' --width=680 --height=480")
     else:
-        os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
+        os.system("XDG_RUNTIME_DIR=/run/user/1000 aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
     showGUI()
 def UpdateWiFi():
     # Used to prompt for the wifi credentials
@@ -554,7 +554,7 @@ def IsCanceled(the_file):
 def ConfigWiFi():
     # Routine to allow typing in custom WiFi Credentials
     global img, WINDOW_NAME
-    os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/spooky_sound7.wav & ")
+    os.system("XDG_RUNTIME_DIR=/run/user/1000 aplay -q /home/pi/Ghost-Catcher-Cam/sounds/spooky_sound7.wav & ")
     img = cv2.imread('/home/pi/Ghost-Catcher-Cam/images/confirm2.png',1)
     cv2.imshow(WINDOW_NAME,img)
     k=cv2.waitKey(1)
@@ -565,7 +565,7 @@ def ConfigWiFi():
         my_result=os.system("echo $(DISPLAY=:0.0 zenity --title='WiFi Config' --text='Enter Password:' --entry --width=680 --height=480 --ok-label='SET') >/home/pi/Ghost-Catcher-Cam/config/temp_wifi_password.cfg")    
         cv2.imshow(WINDOW_NAME,img)
         k=cv2.waitKey(10)
-        os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/spooky_sound7.wav & ")
+        os.system("XDG_RUNTIME_DIR=/run/user/1000 aplay -q /home/pi/Ghost-Catcher-Cam/sounds/spooky_sound7.wav & ")
         if not IsCanceled("/home/pi/Ghost-Catcher-Cam/config/temp_wifi_password.cfg"):
             # do the copying
             UpdateWiFi()
@@ -577,9 +577,9 @@ def ConfigWiFi():
             os.system("( sleep 1 ; sudo reboot )")
             exit()
         else:
-            os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
+            os.system("XDG_RUNTIME_DIR=/run/user/1000 aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
     else:
-        os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
+        os.system("XDG_RUNTIME_DIR=/run/user/1000 aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
     showGUI()
     k=cv2.waitKey(1)
 
@@ -603,7 +603,7 @@ def BeepEverySecond():
     for i in range(10):
         if not ALLOW_BEEP:
             break
-        os.system("(aplay -q /home/pi/Ghost-Catcher-Cam/sounds/202193__thomasevd__10-second-countdown.wav) &")
+        os.system("(XDG_RUNTIME_DIR=/run/user/1000 aplay -q /home/pi/Ghost-Catcher-Cam/sounds/202193__thomasevd__10-second-countdown.wav) &")
         time.sleep(1)
 
 def showGUI():
@@ -632,9 +632,9 @@ def MouseHandler(event, x, y, flags, param):
             return # prevent the inadvertent bounce tap
 
         if not SCANNING:
-            os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/bink.wav &")
+            os.system("XDG_RUNTIME_DIR=/run/user/1000 aplay -q /home/pi/Ghost-Catcher-Cam/sounds/bink.wav &")
         else:
-            os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
+            os.system("XDG_RUNTIME_DIR=/run/user/1000 aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
         return
     elif event==cv2.EVENT_LBUTTONUP:
         delta_time=time.time()-last_time_touched
@@ -662,11 +662,11 @@ def MouseHandler(event, x, y, flags, param):
                     hud=cv2.imread('/home/pi/Ghost-Catcher-Cam/images/hud.png')
                     ALLOW_BEEP=False
                 else:
-                    os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
+                    os.system("XDG_RUNTIME_DIR=/run/user/1000 aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
             elif (not SCANNING  and not START_SCANNING and not DETECTION_MODE and not START_DETECTION_MODE):
                 current_screen=SCREEN_MENU
             else:
-                os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
+                os.system("XDG_RUNTIME_DIR=/run/user/1000 aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
 
             if DETECTION_MODE:
                 hud=cv2.imread('/home/pi/Ghost-Catcher-Cam/images/hud_cancel.png')
@@ -699,14 +699,14 @@ def MouseHandler(event, x, y, flags, param):
                 cv2.imshow(WINDOW_NAME,img)
             elif current_screen==1:
                 # Handle Shutting Down to Desktop
-                os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/shutdown.wav &")
+                os.system("XDG_RUNTIME_DIR=/run/user/1000 aplay -q /home/pi/Ghost-Catcher-Cam/sounds/shutdown.wav &")
                 img = cv2.imread('/home/pi/Ghost-Catcher-Cam/images/exit.png',1)
                 cv2.imshow(WINDOW_NAME,img)
                 k=cv2.waitKey(2000)
                 user_tapped_exit=True
             else:
                 # Handle clicking power region without a screen that needs it.
-                os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
+                os.system("XDG_RUNTIME_DIR=/run/user/1000 aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
                 HideMouse()
         elif (x>82 and x<252 and y>294 and y<420):
             if current_screen==SCREEN_MENU: #handle config youtube
@@ -719,7 +719,7 @@ def MouseHandler(event, x, y, flags, param):
                 return
             elif current_screen==1:
                 # Handle confirmed shutdown
-                os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/shutdown.wav &")
+                os.system("XDG_RUNTIME_DIR=/run/user/1000 aplay -q /home/pi/Ghost-Catcher-Cam/sounds/shutdown.wav &")
                 os.system("( sleep 5 ; sudo shutdown -h now --no-wall ) &")
                 img = cv2.imread('/home/pi/Ghost-Catcher-Cam/images/exit.png',1)
                 cv2.imshow(WINDOW_NAME,img)
@@ -743,7 +743,7 @@ def MouseHandler(event, x, y, flags, param):
                 return
             else:
                 # Handle hitting the youtube button region on a screen that won't do anything
-                os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
+                os.system("XDG_RUNTIME_DIR=/run/user/1000 aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
                 return
         elif (x>465 and x<627 and y>294 and y<420):
             if current_screen==SCREEN_MENU: #handle config wifi 
@@ -760,7 +760,7 @@ def MouseHandler(event, x, y, flags, param):
                 return
             else:
                 # Handle if they hit the Wifi/No region on a screen that doesn't do anything with it.
-                os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
+                os.system("XDG_RUNTIME_DIR=/run/user/1000 aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
                 cv2.imshow(WINDOW_NAME,img)
                 return
         elif (x>330 and x<400 and y>273 and y<359 and current_screen==SCREEN_MENU):
@@ -768,9 +768,9 @@ def MouseHandler(event, x, y, flags, param):
             VOLUME=VOLUME+3
             if (VOLUME>100):
                 VOLUME=100
-                os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
+                os.system("XDG_RUNTIME_DIR=/run/user/1000 aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
             else:
-                os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/volumeup.wav &")
+                os.system("XDG_RUNTIME_DIR=/run/user/1000 aplay -q /home/pi/Ghost-Catcher-Cam/sounds/volumeup.wav &")
             os.system("echo \"" + str(VOLUME) + "\" > /home/pi/Ghost-Catcher-Cam/config/volume.cfg &")
             os.system("amixer -q set Master " + str(VOLUME) + "%")                
             return
@@ -778,15 +778,15 @@ def MouseHandler(event, x, y, flags, param):
             VOLUME=VOLUME-3
             if (VOLUME<70):
                 VOLUME=70
-                os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
+                os.system("XDG_RUNTIME_DIR=/run/user/1000 aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
             else:
-                os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/volumedown.wav &")
+                os.system("XDG_RUNTIME_DIR=/run/user/1000 aplay -q /home/pi/Ghost-Catcher-Cam/sounds/volumedown.wav &")
             os.system("echo \"" + str(VOLUME) + "\" > /home/pi/Ghost-Catcher-Cam/config/volume.cfg &")
             os.system("amixer -q set Master " + str(VOLUME) + "%")
             return
         else:
             # Handle a tap in a region on a screen that had no response
-            os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
+            os.system("XDG_RUNTIME_DIR=/run/user/1000 aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
             HideMouse()
         return
 
@@ -880,7 +880,7 @@ cv2.setMouseCallback(WINDOW_NAME, MouseHandler)
 # Play the startup sound
 GetVolume()
 os.system("amixer -q set Master " + str(VOLUME) + "%")
-os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/331620__hykenfreak__spooky-sucking-air.wav &")
+os.system("XDG_RUNTIME_DIR=/run/user/1000 aplay -q /home/pi/Ghost-Catcher-Cam/sounds/331620__hykenfreak__spooky-sucking-air.wav &")
 
 # Initialize the camera and grab a reference to the raw camera capture
 camera = PiCamera()
@@ -916,5 +916,5 @@ while not user_tapped_exit:
 
 # Cleanup and exit
 cv2.destroyAllWindows()
-os.system("aplay -q /home/pi/Ghost-Catcher-Cam/sounds/geiger1.wav &")
+os.system("XDG_RUNTIME_DIR=/run/user/1000 aplay -q /home/pi/Ghost-Catcher-Cam/sounds/geiger1.wav &")
 exit()
