@@ -772,17 +772,17 @@ def MouseHandler(event, x, y, flags, param):
             else:
                 os.system("XDG_RUNTIME_DIR=/run/user/1000 aplay -q /home/pi/Ghost-Catcher-Cam/sounds/volumeup.wav &")
             os.system("echo \"" + str(VOLUME) + "\" > /home/pi/Ghost-Catcher-Cam/config/volume.cfg &")
-            os.system("pactl set-sink-volume 1 " + str(VOLUME) + "%")                
+            os.system("XDG_RUNTIME_DIR=/run/user/1000 pactl set-sink-volume 1 " + str(VOLUME) + "%")                
             return
         elif (x>330 and x<400 and y>395 and y<453 and current_screen==SCREEN_MENU):
             VOLUME=VOLUME-5
-            if (VOLUME<70):
-                VOLUME=70
+            if (VOLUME<50):
+                VOLUME=50
                 os.system("XDG_RUNTIME_DIR=/run/user/1000 aplay -q /home/pi/Ghost-Catcher-Cam/sounds/419023__jacco18__acess-denied-buzz.wav &")
             else:
                 os.system("XDG_RUNTIME_DIR=/run/user/1000 aplay -q /home/pi/Ghost-Catcher-Cam/sounds/volumedown.wav &")
             os.system("echo \"" + str(VOLUME) + "\" > /home/pi/Ghost-Catcher-Cam/config/volume.cfg &")
-            os.system("pactl set-sink-volume 1 " + str(VOLUME) + "%")
+            os.system("XDG_RUNTIME_DIR=/run/user/1000 pactl set-sink-volume 1 " + str(VOLUME) + "%")
             return
         else:
             # Handle a tap in a region on a screen that had no response
@@ -879,7 +879,7 @@ cv2.setMouseCallback(WINDOW_NAME, MouseHandler)
 
 # Play the startup sound
 GetVolume()
-os.system("pactl set-sink-volume 1 " + str(VOLUME) + "%")
+os.system("XDG_RUNTIME_DIR=/run/user/1000 pactl set-sink-volume 1 " + str(VOLUME) + "%")
 os.system("XDG_RUNTIME_DIR=/run/user/1000 aplay -q /home/pi/Ghost-Catcher-Cam/sounds/331620__hykenfreak__spooky-sucking-air.wav &")
 
 # Initialize the camera and grab a reference to the raw camera capture
