@@ -220,9 +220,11 @@ Fixing Boot Issues:
       The alsa_output was found with ffmpeg -sources pulse
 
 This approach is used by the ghostcv2.py program.
-+     If you ever need a time you want to kill the backlight to save battery, you can do this:
++ Backlight
+      If you ever need a time you want to kill the backlight to save battery, you can do this:
 
       sudo sh -c 'echo "0" > /sys/class/backlight/soc\:backlight/brightness'    
       
-+     To get audio to play from the command line from a program running from crontab, you have to prefix the command line with XDG_RUNTIME_DIR=/run/user/1000.
++ crontab and audio
+      To get audio to play from the command line from a program running from crontab, you have to prefix the command line with XDG_RUNTIME_DIR=/run/user/1000.
       For example, XDG_RUNTIME_DIR=/run/user/1000 espeak hello
