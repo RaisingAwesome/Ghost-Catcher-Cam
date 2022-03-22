@@ -224,3 +224,5 @@ This approach is used by the ghostcv2.py program.
 
       sudo sh -c 'echo "0" > /sys/class/backlight/soc\:backlight/brightness'    
       
++     To get audio to play from the command line from a program running from crontab, you have to prefix the command line with XDG_RUNTIME_DIR=/run/user/1000.
+      For example, XDG_RUNTIME_DIR=/run/user/1000 espeak hello
