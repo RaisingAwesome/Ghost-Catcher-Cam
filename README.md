@@ -122,7 +122,13 @@ Paste this at the bottom and save with CTRL x:
 
 f.  Set up for USB Storage
 
-First, make a directory:  mkdir /home/pi/usbdrv
+First, make a directory:
+
+    mkdir /home/pi/usbdrv
+
+Change the ownership:
+
+    sudo chown -R pi:pi /home/pi/usbdrv
 
 Then get your UUID for the drive with this command:
 
