@@ -34,7 +34,7 @@ DETECTION_MODE=False
 DETECTION_COUNTDOWN=False
 ACTIVITY_COUNT=0
 MATCH=100 #used to show certainty of audio detected
-VOLUME=130
+VOLUME=100
 FRAMES_TO_PERSIST=10
 MIN_SIZE_FOR_MOVEMENT = 2000
 MOVEMENT_DETECTED_PERSISTENCE = 100
@@ -835,7 +835,7 @@ def Speak():
         accent="en-sc"
     elif dice==6:
         accent="tr"
-    os.system("XDG_RUNTIME_DIR=/run/user/1000 espeak -a 200 -v " + accent + gender + str(voice) +" -s " + str(speed + 50) + " -p " + str(30+pitch) + " \"" + the_sounds[SOUND_TRACK] + "\" --stdout | play -V0 - pad 0 2 reverb " + echo +" 2>/dev/null")
+    os.system("XDG_RUNTIME_DIR=/run/user/1000 espeak -a 200 -v " + accent + gender + str(voice) +" -s " + str(speed + 50) + " -p " + str(30+pitch) + " \"" + the_sounds[SOUND_TRACK] + "\" --stdout | XDG_RUNTIME_DIR=/run/user/1000 play -V0 - pad 0 2 reverb " + echo +" 2>/dev/null")
 
     SOUND_TRACK=SOUND_TRACK+1
     if SOUND_TRACK>=TOTAL_RADIO_FILES:
