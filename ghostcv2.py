@@ -175,7 +175,8 @@ def DetectMotion(gray):
 
     # Fill in holes via dilate(), and find contours of the thesholds
     thresh = cv2.dilate(thresh, None, iterations = 2)
-    _, cnts, _ = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    #_, cnts, _ = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    cnts, _ = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
     first_frame=next_frame
     # loop over the contours
