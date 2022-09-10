@@ -253,7 +253,8 @@ def StreamIt():
     else:
          now = datetime.datetime.now()
          the_filename = "video-" + str(now.hour) + "-" + str(now.minute) + "-" + str(now.second) + ".avi"
-         streamkey="</home/pi/Ghost-Catcher-Cam/ramdisk/stop /usr/bin/ffmpeg -v quiet -f pulse -i alsa_output.platform-bcm2835_audio.analog-stereo.monitor -f x11grab -framerate 30 -video_size 720x480 -i :0.0 -b:v 1M /home/pi/usbdrv/" + the_filename + " &"
+#         streamkey="</home/pi/Ghost-Catcher-Cam/ramdisk/stop /usr/bin/ffmpeg -v quiet -f pulse -i alsa_output.platform-bcm2835_audio.analog-stereo.monitor -f x11grab -framerate 30 -video_size 720x480 -i :0.0 -b:v 1M /home/pi/usbdrv/" + the_filename + "  > /home/pi/ffmpg.log 2>&1"
+         streamkey="</home/pi/Ghost-Catcher-Cam/ramdisk/stop /usr/bin/ffmpeg -v quiet -f lavfi -i anullsrc -f x11grab -framerate 30 -video_size 720x480 -i :0.0 -f flv -b:v 1M /home/pi/usbdrv/" + the_filename + " &"
     os.system(streamkey)
 
     HideMouse()
