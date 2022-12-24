@@ -1,6 +1,7 @@
 # Ghost-Catcher-Cam
 A Camera for Ghost Hunting
 
+<img src=https://github.com/RaisingAwesome/Ghost-Catcher-Cam/blob/master/images/ghostcatchercam.png/>
 
 An up-and-coming project to build a camera that can seek and capture the presense of ghosts while streaming to the cloud or USB storage.
 
